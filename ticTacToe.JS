@@ -5,17 +5,18 @@ const gameBoard = {
         row3: { col1: 0, col2: 0, col3: 0 }
     },
 
-    dimensions: 7,
-    generateCells: function() {
+    dimensions: 3,
+    generateCells: function(dimensions) {
         const cellReplacement = {}
-        const dimensions = this.dimensions;
+        this.dimensions = dimensions;
         for (let i = 1; i <= dimensions; i++){
             cellReplacement[`row${i}`] = {};
             for (let j = 1; j <=dimensions; j++){
                 cellReplacement[`row${i}`][`col${j}`] = 0;
             }    
         }
-        console.table(cellReplacement)
+        this.cells = cellReplacement;
+        console.table(this.cells)
     },
     updateValue: function(rowNum, colNum, newValue) {
         const rowIndex = rowNum - 1;
@@ -25,7 +26,10 @@ const gameBoard = {
         const rowKey = rowKeys[rowIndex];  // Get actual row key (e.g., "row1")
         const colKey = colKeys[colIndex];  // Get actual column key (e.g., "col1")
         
-        if (this.cells[rowKey][colKey] !== 0) {
+        if (rowKey === undefined || colKeys === undefined) {
+            console.log('requesting mark beyond dimensions')
+            return "fail"
+        } else if (this.cells[rowKey][colKey] !== 0) {
             return "fail"
         } else if (rowIndex >= 0 && rowIndex < rowKeys.length && colIndex >= 0 && colIndex < colKeys.length && this.cells[rowKey][colKey] === 0) { // Check if rowIndex and colIndex are within valid range
             this.cells[rowKey][colKey] = newValue;
@@ -148,6 +152,18 @@ const play = {
     player1: 'human', 
     player2: 'bot'
   },
+  choosePlayer2: function(player) {
+    if (player === 'bot' || player === 'human') {
+        this.players.player2 = player
+        console.table(this.players)
+    } else {
+        console.log('invalid input, choose human OR bot')
+    }
+  },
+  setBoard: function () {
+    //const dimensions = //something here that refers to DOM
+    gameBoard.generateCells(dimensions)
+  },
   turn: 'player1'
   ,
   status: 'roundInSession',  
@@ -185,6 +201,125 @@ const play = {
       }
     }
   }       
+}
+
+const rockPaperScissors = {
+    getHumanChoice: function(humanChoice){
+        if (humanChoice === null) {
+            console.log("Prompt was canceled. Returning 'CANCELED'.")
+        } else {
+            return humanChoice
+        }
+    },
+    getComputerChoice: function(humanChoiceFinal){
+        function convertToSeed(rawChoice){
+            if (rawChoice === "ROCK"){
+                return 1;
+            }
+            else if (rawChoice === "PAPER"){
+                return 2;
+            }
+            else if (rawChoice === "SCISSORS"){
+                return 3;
+            }
+            else if (rawChoice === "CANCELED") {
+                return undefined
+            }
+        }
+        function pseudoRNG(seed) {
+            if (seed === undefined){
+                return 
+            }
+            else if (![1, 2, 3].includes(seed)) {
+                throw new Error("Invalid seed. Seed must be 1, 2, or 3.");
+            }
+            else {
+        
+                // Generate a random number between 0 and 1
+                const rand = Math.random();
+        
+                // 33% chance to match the seed
+                if (rand < 0.33) {
+                    return seed;
+                }
+        
+                // 36% chance to "beat" the seed
+                else if (rand < 0.69) {
+                    // Beat logic: 1 beats 3, 2 beats 1, 3 beats 2
+                    if (seed === 1) return 2;
+                    if (seed === 2) return 3;
+                    if (seed === 3) return 1;
+                }
+        
+                // 31% chance to return something other than seed or "beat"
+                else {
+                    let options = [1, 2, 3].filter(num => num !== seed && num !== (seed % 3) + 1);
+                    return options[Math.floor(Math.random()*options.length)];
+                }
+            }
+        }
+        if (humanChoiceFinal === undefined )
+            console.log("WHAT A BITCH");
+        else {
+            let humanChoiceConverted = convertToSeed(humanChoiceFinal)
+            let computerChoice = pseudoRNG(humanChoiceConverted)
+            let computerChoiceFinal;
+            if (computerChoice === undefined) {
+                computerChoiceFinal = "CANCELED";
+            } else if (computerChoice == 1){
+                computerChoiceFinal = "ROCK";
+            } else if (computerChoice == 2) {
+                computerChoiceFinal = "PAPER";
+            } else if (computerChoice == 3) {
+                computerChoiceFinal = "SCISSORS";
+            }
+        return computerChoiceFinal
+        }
+    },
+    rpsScore: {
+        humanScore: 0,
+        computerScore: 0
+    },
+    checkGame: function() {
+        const humanScore = this.rpsScore.humanScore
+        const computerScore = this.rpsScore.computerScore
+        if (humanScore > computerScore) {
+            console.log(`HUMAN WIN!`);
+            this.rpsScore.humanScore = 0
+        } else if (humanScore < computerScore) {
+            console.log(`COMPUTER WIN!`);
+            this.rpsScore.computerScore = 0
+        }
+    },
+    play: function(humanChoice) {
+        this.getHumanChoice(humanChoice);
+        let computerChoice = this.getComputerChoice(humanChoice);
+        
+        if (humanChoice ==='CANCELED') {
+            console.log("Exiting game.");
+            return
+        }
+    
+        if (humanChoice === computerChoice){
+            console.log("AGAIN!")
+            this.checkGame()
+        }
+        else if(
+            (humanChoice === "ROCK" && computerChoice === "SCISSORS")
+            || (humanChoice === "SCISSORS" && computerChoice === "PAPER")
+            || (humanChoice === "PAPER" && computerChoice === "ROCK")
+            ){
+            this.rpsScore.humanScore = 1; 
+            console.log(this.rpsScore.humanScore)
+            this.checkGame()
+        }
+        else{
+            this.rpsScore.computerScore = 1
+            console.log(this.rpsScore.computerScore)
+            this.checkGame()
+        }
+        
+    }
 }
 
 console.log('HELLOOOO?')
