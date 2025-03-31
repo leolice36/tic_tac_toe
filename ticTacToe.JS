@@ -144,9 +144,13 @@ const gameBoard = {
 
 const play = {
   start: function () {
-    console.log('GAME START')
+    
     gameBoard.reset()
-    console.log(gameBoard.cells)
+    console.log('CHOOSE ENEMY choosePlayer2(bot/human)')
+    console.log('CHOOSE board dimension setBoard(cells per side)')
+    console.log('ROCK PAPER SCISSORS: rockPaperScissors.play("ROCK/PAPER/SCISSORS")')
+    console.log('GAME START')
+    console.table(gameBoard.cells)
   },
   players: {
     player1: 'human', 
@@ -160,7 +164,7 @@ const play = {
         console.log('invalid input, choose human OR bot')
     }
   },
-  setBoard: function () {
+  setBoard: function (dimensions) {
     //const dimensions = //something here that refers to DOM
     gameBoard.generateCells(dimensions)
   },
@@ -285,9 +289,11 @@ const rockPaperScissors = {
         const computerScore = this.rpsScore.computerScore
         if (humanScore > computerScore) {
             console.log(`HUMAN WIN!`);
+            play.turn = 'player1'
             this.rpsScore.humanScore = 0
         } else if (humanScore < computerScore) {
             console.log(`COMPUTER WIN!`);
+            play.turn = 'player2'
             this.rpsScore.computerScore = 0
         }
     },
@@ -303,6 +309,7 @@ const rockPaperScissors = {
         if (humanChoice === computerChoice){
             console.log("AGAIN!")
             this.checkGame()
+            return
         }
         else if(
             (humanChoice === "ROCK" && computerChoice === "SCISSORS")
@@ -318,7 +325,7 @@ const rockPaperScissors = {
             console.log(this.rpsScore.computerScore)
             this.checkGame()
         }
-        
+        console.log(`${play.turn} turn`)
     }
 }
 
