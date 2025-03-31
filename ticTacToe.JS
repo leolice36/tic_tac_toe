@@ -4,23 +4,35 @@ const gameBoard = {
         row2: { col1: 0, col2: 0, col3: 0 },
         row3: { col1: 0, col2: 0, col3: 0 }
     },
-  
+
+    dimensions: 7,
+    generateCells: function() {
+        const cellReplacement = {}
+        const dimensions = this.dimensions;
+        for (let i = 1; i <= dimensions; i++){
+            cellReplacement[`row${i}`] = {};
+            for (let j = 1; j <=dimensions; j++){
+                cellReplacement[`row${i}`][`col${j}`] = 0;
+            }    
+        }
+        console.table(cellReplacement)
+    },
     updateValue: function(rowNum, colNum, newValue) {
-      const rowIndex = rowNum - 1;
-      const colIndex = colNum - 1;
-      const rowKeys = Object.keys(this.cells);
-      const colKeys = Object.keys(this.cells[rowKeys[0]]); // Get column keys from any row
-      const rowKey = rowKeys[rowIndex];  // Get actual row key (e.g., "row1")
-      const colKey = colKeys[colIndex];  // Get actual column key (e.g., "col1")
-      
-      if (this.cells[rowKey][colKey] !== 0) {
-          return "fail"
-      } else if (rowIndex >= 0 && rowIndex < rowKeys.length && colIndex >= 0 && colIndex < colKeys.length && this.cells[rowKey][colKey] === 0) { // Check if rowIndex and colIndex are within valid range
-          this.cells[rowKey][colKey] = newValue;
-          return "pass"
-      } else { 
-          return "error"
-      }
+        const rowIndex = rowNum - 1;
+        const colIndex = colNum - 1;
+        const rowKeys = Object.keys(this.cells);
+        const colKeys = Object.keys(this.cells[rowKeys[0]]); // Get column keys from any row
+        const rowKey = rowKeys[rowIndex];  // Get actual row key (e.g., "row1")
+        const colKey = colKeys[colIndex];  // Get actual column key (e.g., "col1")
+        
+        if (this.cells[rowKey][colKey] !== 0) {
+            return "fail"
+        } else if (rowIndex >= 0 && rowIndex < rowKeys.length && colIndex >= 0 && colIndex < colKeys.length && this.cells[rowKey][colKey] === 0) { // Check if rowIndex and colIndex are within valid range
+            this.cells[rowKey][colKey] = newValue;
+            return "pass"
+        } else { 
+            return "error"
+        }
     },
   
     reset: function() {
