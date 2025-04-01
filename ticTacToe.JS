@@ -166,7 +166,11 @@ const play = {
   },
   setBoard: function (dimensions) {
     //const dimensions = //something here that refers to DOM
-    gameBoard.generateCells(dimensions)
+    if (dimensions >= 3) {
+        gameBoard.generateCells(dimensions)
+    } else {
+        console.log('Please enter a value of 3 or greater')
+    }
   },
   turn: 'player1'
   ,
@@ -197,13 +201,21 @@ const play = {
       if (valueUpdateCheck === 'fail') {
         console.log(`invalid choice, still ${this.turn}'s' turn`)
       } else if (valueUpdateCheck === 'pass'){
-        this.turn = togglePlayer()
-        console.table(gameBoard.cells)
-        console.log(`${this.turn} turn`)
+        if (gameBoard.check()) {
+            console.log(`${play.turn} WINS!`)
+            gameBoard.reset()
+            console.table(gameBoard.cells)
+        } else {
+            console.table(gameBoard.cells)
+            this.turn = togglePlayer()
+            console.log(`${this.turn} turn`)
+        }
       } else {
         console.log(`invalid syntax, still ${this.turn}'s' turn`)
       }
     }
+    
+    console.log('yas')
   }       
 }
 
@@ -288,11 +300,19 @@ const rockPaperScissors = {
         const humanScore = this.rpsScore.humanScore
         const computerScore = this.rpsScore.computerScore
         if (humanScore > computerScore) {
-            console.log(`HUMAN WIN!`);
+            if (play.players.player2 === 'human'){
+                console.log(`Player 1 WIN!`);
+            } else {
+                console.log(`HUMAN WIN!`);
+            }
             play.turn = 'player1'
             this.rpsScore.humanScore = 0
         } else if (humanScore < computerScore) {
-            console.log(`COMPUTER WIN!`);
+            if (play.players.player2 === 'human'){
+                console.log(`Player 2 WIN!`);
+            } else {
+                console.log(`COMPUTER WIN!`);
+            }
             play.turn = 'player2'
             this.rpsScore.computerScore = 0
         }
