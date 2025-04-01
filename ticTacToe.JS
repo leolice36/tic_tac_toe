@@ -40,10 +40,11 @@ const gameBoard = {
     },
   
     reset: function() {
-        this.cells.row1 = { col1: 0, col2: 0, col3: 0 }
-        this.cells.row2 = { col1: 0, col2: 0, col3: 0 }
-        this.cells.row3 = { col1: 0, col2: 0, col3: 0 }
-        console.log(this.cells)
+        for (let row in this.cells) {
+            for (let col in this.cells[row]) {
+                this.cells[row][col] = 0;
+            }
+        }
     },
     
     allEqualAndNotZero: function(row) {
@@ -177,11 +178,14 @@ const play = {
   status: 'roundInSession',  
   move: function (move){
     function isValidFormat(str) {
-      if (/^r\d+c\d+$/.test(str)) {
+      if ((/[a-zA-Z]|\d+/g).test(str)) {
           return true;
       } else {
           return false;
       }
+    }
+    function separateLettersAndNumbers(input) {
+        return input.match(/[a-zA-Z]|\d+/g);
     }
     function createStringToggler(current, value1, value2) {
       return function () {
@@ -191,7 +195,8 @@ const play = {
     }
     const togglePlayer = createStringToggler(this.turn, "player1", "player2");
     if (isValidFormat(move)) {
-      const moveArr = move.split("")
+        
+      const moveArr = separateLettersAndNumbers(move)
       console.log(moveArr)
       const rowNum =  moveArr[1];
       const colNum =  moveArr[3];
@@ -215,7 +220,6 @@ const play = {
       }
     }
     
-    console.log('yas')
   }       
 }
 
