@@ -80,7 +80,7 @@ const gameBoard = {
         // Loop through each row and check
         const rowsCheck = () => {
           const rowCheck = [];
-          Object.entries(this.cells).forEach(([rowName, row]) => {
+          Object.entries(this.cells).forEach(([row]) => {
           const check = this.allEqualAndNotZero(row)
           rowCheck.push(check)
           });
@@ -91,7 +91,7 @@ const gameBoard = {
         // Loop through each column and check
         const colsCheck = () => {
           const colCheck = [];
-          Object.entries(this.extractColumnValuesAsArray()).forEach(([colName, col]) => {
+          Object.entries(this.extractColumnValuesAsArray()).forEach(([col]) => {
           const check = this.allEqualAndNotZero(col)
           colCheck.push(check)
           });
@@ -206,10 +206,10 @@ const play = {
       if (valueUpdateCheck === 'fail') {
         console.log(`invalid choice, still ${this.turn}'s' turn`)
       } else if (valueUpdateCheck === 'pass'){
-        if (gameBoard.check()) {
+        if (gameBoard.check()) {    
+            console.table(gameBoard.cells)
             console.log(`${play.turn} WINS!`)
             gameBoard.reset()
-            console.table(gameBoard.cells)
         } else {
             console.table(gameBoard.cells)
             this.turn = togglePlayer()
@@ -350,6 +350,40 @@ const rockPaperScissors = {
             this.checkGame()
         }
         console.log(`${play.turn} turn`)
+    }
+}
+
+const bot = {
+    defineLineObj: function() {
+        const lines = [];
+
+        // make rows
+        function defineRows(){
+            for (const [row, col] of Object.entries(gameBoard.cells)){
+                lines[row] = Object.values(col)
+            }
+        }
+
+
+        
+        //make columns
+        function defineCols() {
+            const columnNames = Object.keys(Object.values(gameBoard.cells)[0]);
+    
+            // Initialize an object to store columns dynamically
+            const columns = Object.fromEntries(columnNames.map(col => [col, []]));
+    
+            // Fill the columns with values from each row
+            Object.values(gameBoard.cells).forEach(row => {
+                columnNames.forEach(col => {
+                    columns[col].push(row[col]);
+                });
+            });
+            Object.assign(lines, columns)
+        }
+        defineRows()
+        defineCols()
+        console.table(lines)
     }
 }
 
