@@ -357,16 +357,12 @@ const bot = {
     defineLineObj: function() {
         const lines = [];
 
-        // make rows
         function defineRows(){
             for (const [row, col] of Object.entries(gameBoard.cells)){
                 lines[row] = Object.values(col)
             }
         }
 
-
-        
-        //make columns
         function defineCols() {
             const columnNames = Object.keys(Object.values(gameBoard.cells)[0]);
     
@@ -381,8 +377,35 @@ const bot = {
             });
             Object.assign(lines, columns)
         }
+
+        function defineDiagonals(diagonalNumber) {
+            const rows = Object.keys(gameBoard.cells);
+            const numberOfRows = Object.keys(gameBoard.cells).length;
+            const diagonal = [];
+
+            for (let i = 1; i <= numberOfRows; i++) {
+                const cellsIndex = i-1;
+                const columns = Object.keys(gameBoard.cells[rows[cellsIndex]]); // ["col1", "col2", "col3"]
+                if (diagonalNumber == 1) { //tlbr
+                    const colIndex = cellsIndex; // Same index as rowIndex
+                    const value = gameBoard.cells[rows[cellsIndex]][columns[colIndex]];
+                    diagonal.push(value)
+                } else if (diagonalNumber == 2) { //trbl
+                    const colIndex = numberOfRows-cellsIndex-1; // Same index as rowIndex
+                    const value = gameBoard.cells[rows[cellsIndex]][columns[colIndex]];
+                    diagonal.push(value)
+                } else {
+                    console.log('invalid diagonal number')
+                }
+                const diaObj = {[`dia${diagonalNumber}`]: diagonal}
+                Object.assign(lines, diaObj)
+            }
+            
+        }
         defineRows()
         defineCols()
+        defineDiagonals(1)
+        defineDiagonals(2)
         console.table(lines)
     }
 }
