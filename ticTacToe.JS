@@ -1,8 +1,8 @@
 const gameBoard = {
     cells: {
         row1: { col1: 0, col2: 0, col3: 0 },
-        row2: { col1: 0, col2: 0, col3: 0 },
-        row3: { col1: 0, col2: 0, col3: 0 }
+        row2: { col1: 1, col2: 1, col3: 0 },
+        row3: { col1: 1, col2: 0, col3: 0 }
     },
 
     dimensions: 3,
@@ -478,6 +478,23 @@ const bot = {
             console.log(moves)
             console.log(movesNoDup)
         return movesNoDup
+    },
+    findZeroCells: function() {
+        let result = [];
+    
+        Object.entries(gameBoard.cells).forEach(([rowKey, cols], rowIndex) => {
+            Object.entries(cols).forEach(([colKey, value], colIndex) => {
+                if (value === 0) {
+                    result.push(`r${rowIndex + 1}c${colIndex + 1}`);
+                }
+            });
+        });
+    
+        return result;
+    },
+    getOverlap: function(arr1, arr2) {
+        const set2 = new Set(arr2);
+        return arr1.filter(item => set2.has(item));
     },
     take: function() {
         if (play.status === 'gameInactive'){
