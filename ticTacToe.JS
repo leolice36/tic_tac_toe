@@ -446,7 +446,6 @@ const bot = {
         }   
         const moves = [];
 
-        if (filterLineType('row').length > 0){
             const rows = filterLineType('row')
             for (let row in rows){
                 for (let i = 1; i <= gameBoard.dimensions; i++){
@@ -454,8 +453,31 @@ const bot = {
                     moves.push(move)
                 }
             }
-        }
-        return moves
+
+            const cols = filterLineType('col')
+            for (let col in cols){
+                for (let i = 1; i <= gameBoard.dimensions; i++){
+                    const move = `r${i}c${extractLineNum(cols[col])}`
+                    moves.push(move)
+                }
+            }
+
+            const dia1 = filterLineType('dia1')
+                for (let i = 1; i <= gameBoard.dimensions; i++){
+                    const move = `r${i}c${i}`
+                    moves.push(move)
+                }
+
+            const dia2 = filterLineType('dia2')
+            for (let i = 0; i <= gameBoard.dimensions-1; i++){
+                const move = `r${i+1}c${gameBoard.dimensions - i}`
+                moves.push(move)
+            }
+    
+            const movesNoDup = [...new Set(moves)]
+            console.log(moves)
+            console.log(movesNoDup)
+        return movesNoDup
     },
     take: function() {
         if (play.status === 'gameInactive'){
