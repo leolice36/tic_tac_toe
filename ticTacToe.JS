@@ -147,6 +147,7 @@ const play = {
   start: function () {
     
     gameBoard.reset()
+    gameBoard.status = 'gameActive';
     console.log('CHOOSE ENEMY choosePlayer2(bot/human)')
     console.log('CHOOSE board dimension setBoard(cells per side)')
     console.log('ROCK PAPER SCISSORS: rockPaperScissors.play("ROCK/PAPER/SCISSORS")')
@@ -157,6 +158,10 @@ const play = {
     player1: 'human', 
     player2: 'bot'
   },
+  turn: 'player1'
+  ,
+  status: 'gameActive'
+  ,  
   choosePlayer2: function(player) {
     if (player === 'bot' || player === 'human') {
         this.players.player2 = player
@@ -168,14 +173,17 @@ const play = {
   setBoard: function (dimensions) {
     //const dimensions = //something here that refers to DOM
     if (dimensions >= 3) {
+        gameBoard.dimensions = dimensions;
         gameBoard.generateCells(dimensions)
     } else {
         console.log('Please enter a value of 3 or greater')
     }
   },
-  turn: 'player1'
-  ,
-  status: 'roundInSession',  
+  declareWin: function() {
+    console.log(`${play.turn} WINS!`)
+    gameBoard.status = 'gameInactive';
+    gameBoard.reset()
+  },
   move: function (move){
     function isValidFormat(str) {
       if ((/[a-zA-Z]|\d+/g).test(str)) {
@@ -208,8 +216,7 @@ const play = {
       } else if (valueUpdateCheck === 'pass'){
         if (gameBoard.check()) {    
             console.table(gameBoard.cells)
-            console.log(`${play.turn} WINS!`)
-            gameBoard.reset()
+            this.declareWin()
         } else {
             console.table(gameBoard.cells)
             this.turn = togglePlayer()
@@ -425,6 +432,72 @@ const bot = {
         }
     
         return maxRows;
+    },
+    convertChosenLineToMove: function(chosenLines){
+        function filterLineType(lineType){
+            const filtered = chosenLines.filter(item => item.includes(lineType));
+            return filtered
+        }
+        function extractLineNum(line){
+            //eg row41 gets 41
+            //takes a string
+            const number = line.match(/\d+/)[0]
+            return number
+        }   
+        const moves = [];
+
+        if (filterLineType('row').length > 0){
+            const rows = filterLineType('row')
+            for (let row in rows){
+                for (let i = 1; i <= gameBoard.dimensions; i++){
+                    const move = `r${extractLineNum(rows[row])}c${i}`
+                    moves.push(move)
+                }
+            }
+        }
+        return moves
+    },
+    take: function() {
+        if (play.status === 'gameInactive'){
+            console.log('Game not in session')
+            return
+        } else {
+            const lines = this.defineLineObj();
+            const mostX = this.findRowsWithMostValue(lines, 'X')
+            const mostO = this.findRowsWithMostValue(lines, 'O')
+            const dimension = gameBoard.dimensions;
+            const centerNumber = Math.round(dimension / 2);
+            const centerFour = [
+                gameBoard.cells[`row${dimension / 2}`][`col${dimension / 2}`],
+                gameBoard.cells[`row${dimension / 2 + 1}`][`col${dimension / 2}`],
+                gameBoard.cells[`row${dimension / 2 + 1}`][`col${dimension / 2 + 1}`],
+                gameBoard.cells[`row${dimension / 2 }`][`col${dimension / 2 + 1}`],
+            ]
+            const numberOfMarkInCenterFour = centerFour.filter(val => val === 'O').length;
+            const cornerFour = [
+                gameBoard.cells[`row${1}`][`col${1}`],
+                gameBoard.cells[`row${dimension}`][`1}`],
+                gameBoard.cells[`row${dimension}`][`col${dimension}`],
+                gameBoard.cells[`row${1}`][`col${dimension}`],
+            ]
+            const numberOfMarkInCornerFour = cornerFour.filter(val => val === 'O').length;
+            if (play.turn !== 'player2'){
+                console.log('not your turn')
+                return
+            } else if ((((dimension % 2) !== 0)) 
+                && (gameBoard.cells[`row${centerNumber}`][`col${centerNumber}`] === 0)){
+                    play.move(`r${centerNumber}c${centerNumber}`)
+    
+            } else if (((dimension % 2) === 0) && (numberOfMarkInCenterFour < 2)  && (centerFour.includes(0))){
+                while (current !== numberOfMarkInCenterFour +1) {
+                    const randomRow = Math.random() < 0.5 ? (dimension / 2) : (dimension / 2 + 1);
+                    const randomCol = Math.random() < 0.5 ? (dimension / 2) : (dimension / 2 + 1);
+                    play.move(`r${randomRow}c${randomCol}`)
+                }
+            } else if (Object.keys(mostX).length === 1) {
+                
+            }
+        }    
     }
 }
 
