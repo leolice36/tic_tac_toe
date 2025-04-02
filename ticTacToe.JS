@@ -407,6 +407,24 @@ const bot = {
         defineDiagonals(1)
         defineDiagonals(2)
         console.table(lines)
+        return lines
+    },
+    findRowsWithMostValue: function(obj, targetValue) {
+        let maxCount = 0;
+        let maxRows = [];
+    
+        for (const row in obj) {
+            const count = Object.values(obj[row]).filter(val => val === targetValue).length;
+    
+            if (count > maxCount) {
+                maxCount = count;
+                maxRows = [row]; 
+            } else if (count === maxCount) {
+                maxRows.push(row); // Add to the list of tied rows
+            }
+        }
+    
+        return maxRows;
     }
 }
 
