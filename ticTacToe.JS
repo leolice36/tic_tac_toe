@@ -1,8 +1,8 @@
 const gameBoard = {
     cells: {
-        row1: { col1: 'O', col2: 'X', col3: 'O' },
-        row2: { col1: 'X', col2: 'O', col3: 'X' },
-        row3: { col1: 0, col2: 0, col3: 'X' }
+        row1: { col1: 0, col2: 0, col3: 0 },
+        row2: { col1: 0, col2: 0, col3: 0 },
+        row3: { col1: 0, col2: 0, col3: 0 }
     },
 
     dimensions: 3,
@@ -83,7 +83,6 @@ const gameBoard = {
           Object.entries(this.cells).forEach(([rowName,row]) => {
           const check = this.allEqualAndNotZero(row)
           rowCheck.push(check)
-          console.log({check})
           });
         //   console.log(`rowCheck: ${rowCheck}`)
           return consolidateCheck(rowCheck)
@@ -136,7 +135,7 @@ const gameBoard = {
         }
       
         const finalCheck = [rowsCheck(),colsCheck(),tlbrCheck(),trblCheck()]
-        console.log(finalCheck)
+        // console.log(finalCheck)
         return finalCheck.includes(true)
     },
     test: function() {
@@ -148,7 +147,7 @@ const play = {
   start: function () {
     
     gameBoard.reset()
-    gameBoard.status = 'gameActive';
+    play.status = 'gameActive';
     console.log('CHOOSE ENEMY choosePlayer2(bot/human)')
     console.log('CHOOSE board dimension setBoard(cells per side)')
     console.log('ROCK PAPER SCISSORS: rockPaperScissors.play("ROCK/PAPER/SCISSORS")')
@@ -182,58 +181,67 @@ const play = {
   },
   declareWin: function() {
     console.log(`${play.turn} WINS!`)
-    gameBoard.status = 'gameInactive';
+    play.status = 'gameInactive';
     gameBoard.reset()
   },
   declareDraw: function() {
     console.log('DRAW')
-    gameBoard.status = 'gameInactive';
+    play.status = 'gameInactive';
     gameBoard.reset()
   },
   move: function (move){
-    function isValidFormat(str) {
-      if ((/[a-zA-Z]|\d+/g).test(str)) {
-          return true;
-      } else {
-          return false;
-      }
-    }
-    function separateLettersAndNumbers(input) {
-        return input.match(/[a-zA-Z]|\d+/g);
-    }
-    function createStringToggler(current, value1, value2) {
-      return function () {
-          current = current === value1 ? value2 : value1;
-          return current;
-      };
-    }
-    const togglePlayer = createStringToggler(this.turn, "player1", "player2");
-    if (isValidFormat(move)) {
-        
-      const moveArr = separateLettersAndNumbers(move)
-      console.log(moveArr)
-      const rowNum =  moveArr[1];
-      const colNum =  moveArr[3];
-      const marker = this.turn === 'player1'? "X" : "O";
-      //tries to update board, has a filter on the updateValue method.
-      let valueUpdateCheck = gameBoard.updateValue(rowNum, colNum, marker);
-      if (valueUpdateCheck === 'fail') {
-        console.log(`invalid choice, still ${this.turn}'s' turn`)
-      } else if (valueUpdateCheck === 'pass'){
-        if (gameBoard.check()) {    
-            console.table(gameBoard.cells)
-            this.declareWin()
-        } else if (!gameBoard.check() && bot.findZeroCells().length === 0) {
-            console.table(gameBoard.cells)
-            this.declareDraw()
-        } else {
-            console.table(gameBoard.cells)
-            this.turn = togglePlayer()
-            console.log(`${this.turn} turn`)
+    if (play.status === 'gameInactive'){
+        console.log('Game not in session')
+        return
+    } else {
+        function isValidFormat(str) {
+          if ((/[a-zA-Z]|\d+/g).test(str)) {
+              return true;
+          } else {
+              return false;
+          }
         }
-      } else {
-        console.log(`invalid syntax, still ${this.turn}'s' turn`)
-      }
+        function separateLettersAndNumbers(input) {
+            return input.match(/[a-zA-Z]|\d+/g);
+        }
+        function createStringToggler(current, value1, value2) {
+          return function () {
+              current = current === value1 ? value2 : value1;
+              return current;
+          };
+        }
+        const togglePlayer = createStringToggler(this.turn, "player1", "player2");
+        if (isValidFormat(move)) {
+            
+          const moveArr = separateLettersAndNumbers(move)
+        //   console.log(moveArr)
+          const rowNum =  moveArr[1];
+          const colNum =  moveArr[3];
+          const marker = this.turn === 'player1'? "X" : "O";
+          //tries to update board, has a filter on the updateValue method.
+          let valueUpdateCheck = gameBoard.updateValue(rowNum, colNum, marker);
+          if (valueUpdateCheck === 'fail') {
+            console.log(`invalid choice, still ${this.turn}'s' turn`)
+          } else if (valueUpdateCheck === 'pass'){
+            if (gameBoard.check()) {    
+                console.table(gameBoard.cells)
+                this.declareWin()
+            } else if (!gameBoard.check() && bot.findZeroCells().length === 0) {
+                console.table(gameBoard.cells)
+                this.declareDraw()
+            } else {
+                console.table(gameBoard.cells)
+                this.turn = togglePlayer()
+                console.log(`${this.turn} turn`)
+            }
+          } else {
+            console.log(`invalid syntax, still ${this.turn}'s' turn`)
+          }
+        }
+    
+        if (play.players.player2 === 'bot'){
+            bot.take()
+        }
     }
     
   }       
@@ -422,7 +430,7 @@ const bot = {
         defineCols()
         defineDiagonals(1)
         defineDiagonals(2)
-        console.table(lines)
+        // console.table(lines)
         return lines
     },
     findRowsWithMostValue: function(obj, targetValue) {
@@ -456,7 +464,7 @@ const bot = {
         const moves = [];
 
             const rows = filterLineType('row')
-            console.log({rows})
+            // console.log({rows})
             for (let row in rows){
                 for (let i = 1; i <= gameBoard.dimensions; i++){
                     const move = `r${extractLineNum(rows[row])}c${i}`
@@ -465,7 +473,7 @@ const bot = {
             }
 
             const cols = filterLineType('col')
-            console.log({cols})
+            // console.log({cols})
             for (let col in cols){
                 for (let i = 1; i <= gameBoard.dimensions; i++){
                     const move = `r${i}c${extractLineNum(cols[col])}`
@@ -475,7 +483,7 @@ const bot = {
 
             const dia1 = filterLineType('dia1')
             if (dia1.length > 0){ 
-                console.log({dia1})
+                // console.log({dia1})
                 for (let i = 1; i <= gameBoard.dimensions; i++){
                     const move = `r${i}c${i}`
                     moves.push(move)
@@ -483,16 +491,16 @@ const bot = {
             }
             const dia2 = filterLineType('dia2')
             if (dia2.length > 0){ 
-                console.log({dia2})
+                // console.log({dia2})
                 for (let i = 0; i <= gameBoard.dimensions-1; i++){
                     const move = `r${i+1}c${gameBoard.dimensions - i}`
                     moves.push(move)
                 }
             }
             const movesNoDup = [...new Set(moves)]
-            console.log(chosenLines)
-            console.log(moves)
-            console.log(movesNoDup)
+            // console.log(chosenLines)
+            // console.log(moves)
+            // console.log(movesNoDup)
         return movesNoDup
     },
     findZeroCells: function() {
@@ -546,9 +554,9 @@ const bot = {
             const mostXAvailable = bot.getOverlap(positionsInLinesX,availablePositions);
             const mostOAvailable = bot.getOverlap(positionsInLinesO,availablePositions);
             const win = mostOAvailable.length
-            console.log({positionsInLinesO})
-            console.log({mostOAvailable})
-            console.log({win})
+            // console.log({positionsInLinesO})
+            // console.log({mostOAvailable})
+            // console.log({win})
             if (play.turn !== 'player2'){
                 console.log('not your turn')
                 return
@@ -563,28 +571,28 @@ const bot = {
                     play.move(`r${randomRow}c${randomCol}`)
                 }
             } else if (Object.keys(mostX).length === 1 && bot.getOverlap(positionsInLinesX,availablePositions).length > 0) {
-                console.log('mostX = 1')
+                // console.log('mostX = 1')
                 const availableMoves = bot.getOverlap(positionsInLinesX,availablePositions);
                 const randomMoveIndex = Math.floor(Math.random() * availableMoves.length);
                 const chosenMove = availableMoves[randomMoveIndex]
                 play.move(`${chosenMove}`)
             }else if ((mostOAvailable.length === 1) && (mostOCount === dimension-1)) {
-                    console.log('winning move')
+                    // console.log('winning move')
                     const randomMoveIndex = Math.floor(Math.random() * mostOAvailable.length);
                     const chosenMove = mostOAvailable[randomMoveIndex]
                     play.move(`${chosenMove}`)
-            } else if (overlapXOAvail.length > 0) {
-                    console.log('overlapXOAvail.length > 0')
-                    const randomMoveIndex = Math.floor(Math.random() * overlapXOAvail.length);
-                    const chosenMove = overlapXOAvail[randomMoveIndex]
-                    play.move(`${chosenMove}`)
             } else if (mostXCount > mostOCount){
-                console.log('mostXCount > mostOCount')
+                // console.log('mostXCount > mostOCount')
                 const randomMoveIndex = Math.floor(Math.random() * mostXAvailable.length);
                 const chosenMove = mostXAvailable[randomMoveIndex]
                 play.move(`${chosenMove}`)
+            } else if (overlapXOAvail.length > 0) {
+                    // console.log('overlapXOAvail.length > 0')
+                    const randomMoveIndex = Math.floor(Math.random() * overlapXOAvail.length);
+                    const chosenMove = overlapXOAvail[randomMoveIndex]
+                    play.move(`${chosenMove}`)
             } else if (mostOAvailable.length > 0) {
-                console.log('else')
+                // console.log('else')
                 const randomMoveIndex = Math.floor(Math.random() * mostOAvailable.length);
                 const chosenMove = mostOAvailable[randomMoveIndex]
                 play.move(`${chosenMove}`)
