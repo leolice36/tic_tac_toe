@@ -1,8 +1,8 @@
 const gameBoard = {
     cells: {
-        row1: { col1: 0, col2: 0, col3: 0 },
-        row2: { col1: 1, col2: 1, col3: 0 },
-        row3: { col1: 1, col2: 0, col3: 0 }
+        row1: { col1: 'X', col2: 0, col3: 0 },
+        row2: { col1: 0, col2: 'O', col3: 0 },
+        row3: { col1: 0, col2: 'O', col3: 'X' }
     },
 
     dimensions: 3,
@@ -80,9 +80,10 @@ const gameBoard = {
         // Loop through each row and check
         const rowsCheck = () => {
           const rowCheck = [];
-          Object.entries(this.cells).forEach(([row]) => {
+          Object.entries(this.cells).forEach(([rowName,row]) => {
           const check = this.allEqualAndNotZero(row)
           rowCheck.push(check)
+          console.log({check})
           });
         //   console.log(`rowCheck: ${rowCheck}`)
           return consolidateCheck(rowCheck)
@@ -91,7 +92,7 @@ const gameBoard = {
         // Loop through each column and check
         const colsCheck = () => {
           const colCheck = [];
-          Object.entries(this.extractColumnValuesAsArray()).forEach(([col]) => {
+          Object.entries(this.extractColumnValuesAsArray()).forEach(([colName,col]) => {
           const check = this.allEqualAndNotZero(col)
           colCheck.push(check)
           });
@@ -431,7 +432,7 @@ const bot = {
             }
         }
     
-        return maxRows;
+        return {'maxRows': maxRows, 'maxCount': maxCount};
     },
     convertChosenLineToMove: function(chosenLines){
         function filterLineType(lineType){
@@ -447,6 +448,7 @@ const bot = {
         const moves = [];
 
             const rows = filterLineType('row')
+            console.log({rows})
             for (let row in rows){
                 for (let i = 1; i <= gameBoard.dimensions; i++){
                     const move = `r${extractLineNum(rows[row])}c${i}`
@@ -455,6 +457,7 @@ const bot = {
             }
 
             const cols = filterLineType('col')
+            console.log({cols})
             for (let col in cols){
                 for (let i = 1; i <= gameBoard.dimensions; i++){
                     const move = `r${i}c${extractLineNum(cols[col])}`
@@ -463,18 +466,23 @@ const bot = {
             }
 
             const dia1 = filterLineType('dia1')
+            if (dia1.length > 0){ 
+                console.log({dia1})
                 for (let i = 1; i <= gameBoard.dimensions; i++){
                     const move = `r${i}c${i}`
                     moves.push(move)
                 }
-
-            const dia2 = filterLineType('dia2')
-            for (let i = 0; i <= gameBoard.dimensions-1; i++){
-                const move = `r${i+1}c${gameBoard.dimensions - i}`
-                moves.push(move)
             }
-    
+            const dia2 = filterLineType('dia2')
+            if (dia2.length > 0){ 
+                console.log({dia2})
+                for (let i = 0; i <= gameBoard.dimensions-1; i++){
+                    const move = `r${i+1}c${gameBoard.dimensions - i}`
+                    moves.push(move)
+                }
+            }
             const movesNoDup = [...new Set(moves)]
+            console.log(chosenLines)
             console.log(moves)
             console.log(movesNoDup)
         return movesNoDup
@@ -502,15 +510,17 @@ const bot = {
             return
         } else {
             const lines = this.defineLineObj();
-            const mostX = this.findRowsWithMostValue(lines, 'X')
-            const mostO = this.findRowsWithMostValue(lines, 'O')
+            const mostX = this.findRowsWithMostValue(lines, 'X').maxRows
+            const mostO = this.findRowsWithMostValue(lines, 'O').maxRows
+            const mostXCount = this.findRowsWithMostValue(lines, 'X').maxCount
+            const mostOCount = this.findRowsWithMostValue(lines, 'X').maxCount
             const dimension = gameBoard.dimensions;
             const centerNumber = Math.round(dimension / 2);
             const centerFour = [
-                gameBoard.cells[`row${dimension / 2}`][`col${dimension / 2}`],
-                gameBoard.cells[`row${dimension / 2 + 1}`][`col${dimension / 2}`],
-                gameBoard.cells[`row${dimension / 2 + 1}`][`col${dimension / 2 + 1}`],
-                gameBoard.cells[`row${dimension / 2 }`][`col${dimension / 2 + 1}`],
+                gameBoard.cells[`row${centerNumber}`][`col${centerNumber}`],
+                gameBoard.cells[`row${centerNumber + 1}`][`col${centerNumber}`],
+                gameBoard.cells[`row${centerNumber + 1}`][`col${centerNumber + 1}`],
+                gameBoard.cells[`row${centerNumber }`][`col${centerNumber + 1}`],
             ]
             const numberOfMarkInCenterFour = centerFour.filter(val => val === 'O').length;
             const cornerFour = [
@@ -519,23 +529,67 @@ const bot = {
                 gameBoard.cells[`row${dimension}`][`col${dimension}`],
                 gameBoard.cells[`row${1}`][`col${dimension}`],
             ]
-            const numberOfMarkInCornerFour = cornerFour.filter(val => val === 'O').length;
+            // const numberOfMarkInCornerFour = cornerFour.filter(val => val === 'O').length;
+            const availablePositions = bot.findZeroCells();
+            const positionsInLinesX = bot.convertChosenLineToMove(mostX);
+            const positionsInLinesO = bot.convertChosenLineToMove(mostO);
+            const overlapXO = bot.getOverlap(positionsInLinesX,positionsInLinesO);
+            const overlapXOAvail = bot.getOverlap(overlapXO,availablePositions);
+            const mostXAvailable = bot.getOverlap(positionsInLinesX,availablePositions);
+            const mostOAvailable = bot.getOverlap(positionsInLinesO,availablePositions);
+            const win = mostOAvailable.length
+            console.log({positionsInLinesO})
+            console.log({mostOAvailable})
+            console.log({win})
             if (play.turn !== 'player2'){
                 console.log('not your turn')
                 return
             } else if ((((dimension % 2) !== 0)) 
                 && (gameBoard.cells[`row${centerNumber}`][`col${centerNumber}`] === 0)){
                     play.move(`r${centerNumber}c${centerNumber}`)
-    
+                    
             } else if (((dimension % 2) === 0) && (numberOfMarkInCenterFour < 2)  && (centerFour.includes(0))){
                 while (current !== numberOfMarkInCenterFour +1) {
                     const randomRow = Math.random() < 0.5 ? (dimension / 2) : (dimension / 2 + 1);
                     const randomCol = Math.random() < 0.5 ? (dimension / 2) : (dimension / 2 + 1);
                     play.move(`r${randomRow}c${randomCol}`)
                 }
-            } else if (Object.keys(mostX).length === 1) {
-                
-            }
+            } else if (Object.keys(mostX).length === 1 && bot.getOverlap(positionsInLinesX,availablePositions).length > 0) {
+                console.log('mostX = 1')
+                const availableMoves = bot.getOverlap(positionsInLinesX,availablePositions);
+                const randomMoveIndex = Math.floor(Math.random() * availableMoves.length);
+                const chosenMove = availableMoves[randomMoveIndex]
+                play.move(`${chosenMove}`)
+            }else if ((mostOAvailable.length === 1) && (mostOCount === dimension-1)) {
+                    console.log('winning move')
+                    const randomMoveIndex = Math.floor(Math.random() * mostOAvailable.length);
+                    const chosenMove = mostOAvailable[randomMoveIndex]
+                    play.move(`${chosenMove}`)
+            } else if ((Object.keys(mostX).length > 1) && (mostXCount <= mostOCount) && mostXAvailable.length > 0) {
+                console.log('mostX > 1')
+
+                if (overlapXOAvail.length > 0) {
+                    console.log('overlapXOAvail.length > 0')
+                    const randomMoveIndex = Math.floor(Math.random() * overlapXOAvail.length);
+                    const chosenMove = overlapXOAvail[randomMoveIndex]
+                    play.move(`${chosenMove}`)
+                } else if (mostXCount > mostOCount){
+                    console.log('mostXCount > mostOCount')
+                    const randomMoveIndex = Math.floor(Math.random() * mostXAvailable.length);
+                    const chosenMove = mostXAvailable[randomMoveIndex]
+                    play.move(`${chosenMove}`)
+                } else {
+                    console.log('else')
+                    const randomMoveIndex = Math.floor(Math.random() * mostOAvailable.length);
+                    const chosenMove = mostOAvailable[randomMoveIndex]
+                    play.move(`${chosenMove}`)
+                }
+            } else {
+                console.log('else')
+                const randomMoveIndex = Math.floor(Math.random() * mostOAvailable.length);
+                const chosenMove = mostOAvailable[randomMoveIndex]
+                play.move(`${chosenMove}`)
+            } 
         }    
     }
 }
