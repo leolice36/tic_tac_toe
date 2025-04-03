@@ -1,8 +1,8 @@
 const gameBoard = {
     cells: {
-        row1: { col1: 'X', col2: 0, col3: 0 },
-        row2: { col1: 0, col2: 'O', col3: 0 },
-        row3: { col1: 0, col2: 'O', col3: 'X' }
+        row1: { col1: 'O', col2: 'X', col3: 'O' },
+        row2: { col1: 'X', col2: 'O', col3: 'X' },
+        row3: { col1: 0, col2: 0, col3: 'X' }
     },
 
     dimensions: 3,
@@ -71,10 +71,10 @@ const gameBoard = {
     check: function() {
         function consolidateCheck (checkerObj) {
             if (checkerObj.includes(true)) {
-            return true
-          } else {
-            return false
-          }
+                return true
+            } else {
+                return false
+            }
         }
       
         // Loop through each row and check
@@ -185,6 +185,11 @@ const play = {
     gameBoard.status = 'gameInactive';
     gameBoard.reset()
   },
+  declareDraw: function() {
+    console.log('DRAW')
+    gameBoard.status = 'gameInactive';
+    gameBoard.reset()
+  },
   move: function (move){
     function isValidFormat(str) {
       if ((/[a-zA-Z]|\d+/g).test(str)) {
@@ -218,6 +223,9 @@ const play = {
         if (gameBoard.check()) {    
             console.table(gameBoard.cells)
             this.declareWin()
+        } else if (!gameBoard.check() && bot.findZeroCells().length === 0) {
+            console.table(gameBoard.cells)
+            this.declareDraw()
         } else {
             console.table(gameBoard.cells)
             this.turn = togglePlayer()
@@ -565,31 +573,26 @@ const bot = {
                     const randomMoveIndex = Math.floor(Math.random() * mostOAvailable.length);
                     const chosenMove = mostOAvailable[randomMoveIndex]
                     play.move(`${chosenMove}`)
-            } else if ((Object.keys(mostX).length > 1) && (mostXCount <= mostOCount) && mostXAvailable.length > 0) {
-                console.log('mostX > 1')
-
-                if (overlapXOAvail.length > 0) {
+            } else if (overlapXOAvail.length > 0) {
                     console.log('overlapXOAvail.length > 0')
                     const randomMoveIndex = Math.floor(Math.random() * overlapXOAvail.length);
                     const chosenMove = overlapXOAvail[randomMoveIndex]
                     play.move(`${chosenMove}`)
-                } else if (mostXCount > mostOCount){
-                    console.log('mostXCount > mostOCount')
-                    const randomMoveIndex = Math.floor(Math.random() * mostXAvailable.length);
-                    const chosenMove = mostXAvailable[randomMoveIndex]
-                    play.move(`${chosenMove}`)
-                } else {
-                    console.log('else')
-                    const randomMoveIndex = Math.floor(Math.random() * mostOAvailable.length);
-                    const chosenMove = mostOAvailable[randomMoveIndex]
-                    play.move(`${chosenMove}`)
-                }
-            } else {
+            } else if (mostXCount > mostOCount){
+                console.log('mostXCount > mostOCount')
+                const randomMoveIndex = Math.floor(Math.random() * mostXAvailable.length);
+                const chosenMove = mostXAvailable[randomMoveIndex]
+                play.move(`${chosenMove}`)
+            } else if (mostOAvailable.length > 0) {
                 console.log('else')
                 const randomMoveIndex = Math.floor(Math.random() * mostOAvailable.length);
                 const chosenMove = mostOAvailable[randomMoveIndex]
                 play.move(`${chosenMove}`)
-            } 
+            } else {
+                const randomMoveIndex = Math.floor(Math.random() * availablePositions.length);
+                const chosenMove = availablePositions[randomMoveIndex]
+                play.move(`${chosenMove}`)
+            }
         }    
     }
 }
