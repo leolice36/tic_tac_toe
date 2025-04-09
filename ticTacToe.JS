@@ -604,5 +604,416 @@ const bot = {
         }    
     }
 }
+const rpsUI = {
+    dimension: 3,
+    tac: document.querySelector(".tac"),
+    dropMain: document.querySelector('.drop-main'),
+    hitSpeed: 25,
+    shoveStrength: 8,
+    springReturnSpeed: 0.25,
+    pos2: 0,
+    originalPos2: 0,
+    nArr: [],
+    tacFontCounter: 2,
+    gridData: {},
+
+    init() {
+        this.tac.style.top = `${this.pos2}px`;
+        this.applySpringPull();
+        // Ensure the animation target exists before adding listener
+        const toeElement = document.querySelector('.toe');
+        // Generate the grid data object based on the initial dimension
+        this.gridData = this.generateGridData(this.dimension);
+        if (toeElement) {
+             toeElement.addEventListener('animationend', () => {
+              this.startFiringSequence()
+              });
+        } else {
+            console.warn(".toe element not found for animationend listener.");
+        }
+        setTimeout(() => {
+            this.createGridFromObject(this.gridData, "gridContainer");
+        }, 2000);
+
+
+
+    },
+
+    generateGridData(dimension) {
+        const newGridData = {};
+        for (let i = 1; i <= dimension; i++) {
+            const rowKey = `row${i}`; // e.g., "row1", "row2"
+            const rowObject = {};
+            for (let j = 1; j <= dimension; j++) {
+                const colKey = `col${j}`; // e.g., "col1", "col2"
+                rowObject[colKey] = 0; // Default value for each cell
+            }
+            newGridData[rowKey] = rowObject; // Add the row to the main grid object
+        }
+        return newGridData;
+    },
+
+    fireNewN(text) {
+        const newDiv = document.createElement("div");
+        newDiv.classList.add("red-n");
+        newDiv.textContent = `${text}`; // Text can be 'n' or a number
+
+        // Ensure dropMain exists
+        if (!this.dropMain) {
+            console.error(".drop-main container not found.");
+            return;
+        }
+        this.dropMain.appendChild(newDiv);
+
+
+        const n = {
+            el: newDiv,
+            pos: -200,
+            stuck: false
+        };
+
+        newDiv.style.top = `${n.pos}px`;
+        this.nArr.push(n);
+        this.animateN(n);
+    },
+
+    removeExcessN() {
+        const maxStuckVisible = 1; // Max STUCK elements allowed
+
+        // Filter to get stuck items AND ensure they have an 'el' property
+        const stuckItems = this.nArr.filter(nItem => nItem && nItem.stuck && nItem.el);
+        const stuckCount = stuckItems.length;
+
+        if (stuckCount > maxStuckVisible) {
+            const removeCount = stuckCount - maxStuckVisible;
+            console.log(`[removeExcessN] Found ${stuckCount} stuck items. Need to remove ${removeCount} older ones.`);
+
+
+            const itemsToRemove = [];
+            // Iterate through the original array to find the oldest stuck items
+            for (let i = 0; i < this.nArr.length && itemsToRemove.length < removeCount; i++) {
+                const currentItem = this.nArr[i];
+                // Check item validity AND if it's stuck
+                if (currentItem && currentItem.stuck && currentItem.el) {
+                    itemsToRemove.push(currentItem);
+                }
+            }
+
+            console.log("[removeExcessN] Stuck items identified for removal:", itemsToRemove.map(item => item.el?.textContent));
+
+            // Remove elements from DOM and array
+            itemsToRemove.forEach(itemToRemove => {
+                const indexToRemove = this.nArr.findIndex(item => item === itemToRemove);
+
+                if (indexToRemove !== -1) {
+                    console.log(`[removeExcessN] Removing STUCK element at index ${indexToRemove}:`, itemToRemove.el.textContent);
+                    if (itemToRemove.el && itemToRemove.el.parentNode) {
+                        itemToRemove.el.remove();
+                    } else {
+                        console.warn(`[removeExcessN] Stuck element ${itemToRemove.el?.textContent} already removed from DOM or invalid.`);
+                    }
+                    this.nArr.splice(indexToRemove, 1);
+                } else {
+                     console.warn(`[removeExcessN] Could not find STUCK item in nArr for removal:`, itemToRemove);
+                }
+            });
+            console.log(`[removeExcessN] nArr length after STUCK removal: ${this.nArr.length}`);
+
+        } else {
+             console.log(`[removeExcessN] ${stuckCount} stuck items found. No excess stuck items to remove.`);
+        }
+    },
+
+    animateN(n) {
+        const self = this;
+        // Ensure tac element exists
+        if (!self.tac) {
+            console.error(".tac element not found for collision detection.");
+            n.el.remove(); 
+            const indexToRemove = self.nArr.findIndex(item => item === n);
+            if (indexToRemove !== -1) self.nArr.splice(indexToRemove, 1);
+            return;
+        }
+
+        function move() {
+            if (n.stuck) return; // Stop animation if stuck
+
+            n.pos += self.hitSpeed;
+            n.el.style.top = `${n.pos}px`;
+
+            const rect1 = n.el.getBoundingClientRect();
+            const rect2 = self.tac.getBoundingClientRect();
+
+            const isCollision = !(rect1.right < rect2.left ||
+                rect1.left > rect2.right ||
+                rect1.bottom < rect2.top || // Collision happens when bottom of n reaches top of tac
+                rect1.top > rect2.bottom);
+
+
+            if (isCollision) {
+                self.pos2 += self.shoveStrength; // Shove tac down
+                self.tac.style.top = `${self.pos2}px`;
+
+                n.pos = self.pos2; // Make 'n' stick to the new tac position
+                n.el.style.top = `${n.pos}px`;
+                n.stuck = true; // Mark as stuck
+
+                // --- FONT WEIGHT ANIMATION ---
+                self.tacFontCounter++;
+                if (self.tacFontCounter > 9) self.tacFontCounter = 9; // Cap font weight
+                self.tac.style.fontWeight = `${self.tacFontCounter}00`;
+
+                (function decrementtacFontCounter() {
+                    if (self.tacFontCounter <= 2) {
+                        self.tacFontCounter = 2;
+                        self.tac.style.transition = `font-weight 300ms linear`;
+                        self.tac.style.fontWeight = `200`;
+                        return;
+                    }
+
+                    // Adjust delay calculation if needed
+                    const delay = Math.max(50, (9 - self.tacFontCounter) * 200); 
+                    self.tac.style.transition = `font-weight ${delay}ms ease-out`;
+                    // Set target weight for the transition
+                    self.tac.style.fontWeight = `${(self.tacFontCounter -1)}00`;
+
+
+                    setTimeout(() => {
+                        self.tacFontCounter--;
+                        // Rerun only if not yet at base weight
+                        if (self.tacFontCounter > 2) {
+                             decrementtacFontCounter();
+                        } else {
+                             self.tac.style.transition = `font-weight ${delay}ms ease-out`;
+                             self.tac.style.fontWeight = `200`;
+                        }
+                    }, delay);
+                })(); 
+                // --- END FONT WEIGHT ANIMATION ---
+
+
+                // Set dimension based on the text content ('n' or number)
+                self.setDimension(n.el.textContent);
+
+                 self.removeExcessN(); // Call cleanup
+
+            } else {
+                 // Check if element has fallen off screen
+                 const boundary = window.innerHeight; // Or boundary of parent container
+                 if (n.pos > boundary + 50) { // Give some buffer
+                     // Remove element if it's off screen and not stuck
+                     console.log("Element off screen, removing:", n.el.textContent);
+                     const indexToRemove = self.nArr.findIndex(item => item === n);
+                     if (indexToRemove !== -1) {
+                         self.nArr.splice(indexToRemove, 1);
+                     }
+                     n.el.remove();
+                     // Do not request further animation frames
+                 } else {
+                    // Continue animating if not stuck and within bounds
+                     requestAnimationFrame(move);
+                 }
+            }
+        }
+
+        requestAnimationFrame(move);
+        // Clean up excess *non-stuck* elements proactively
+        setTimeout(() => self.removeExcessN(), 0); // Use timeout to avoid potential conflicts
+    },
+
+    applySpringPull() {
+        const baseSpringSpeed = this.springReturnSpeed;
+        const springFactor = 0.05; // How much stretch increases return speed
+
+        if (this.pos2 > this.originalPos2) {
+            const distance = this.pos2 - this.originalPos2;
+            // Make return speed proportional to distance, but with a base speed
+            const dynamicSpringSpeed = baseSpringSpeed + (distance * springFactor);
+            this.pos2 -= dynamicSpringSpeed;
+            // Prevent overshooting
+            if (this.pos2 < this.originalPos2) {
+                this.pos2 = this.originalPos2;
+            }
+            if (this.tac) { // Check if tac exists
+                 this.tac.style.top = `${this.pos2}px`;
+            }
+        }
+
+        // Make stuck elements follow the tac's spring movement
+        this.nArr.forEach((n) => {
+            if (n.stuck && n.el) { // Check if element still exists
+                n.pos = this.pos2;
+                n.el.style.top = `${n.pos}px`;
+            }
+        });
+
+        requestAnimationFrame(this.applySpringPull.bind(this)); // Continue the spring effect
+    },
+
+
+    setDimension(text) {
+        const previousDimension = this.dimension; // Store previous dimension
+
+        if (text === 'n') {
+            // Explicitly reset to 3x3 when 'n' is hit
+            this.dimension = 3;
+            console.log("Received 'n', resetting dimension to 3.");
+        } else {
+            // Try parsing other inputs as numbers
+            const parsedValue = Number(text);
+            // Validate: must be a number, > 0, and an integer
+            if (!isNaN(parsedValue) && parsedValue > 0 && Number.isInteger(parsedValue)) {
+                 // Add a reasonable upper limit? e.g., max 20x20
+                 const maxDim = 20;
+                 if (parsedValue <= maxDim) {
+                     this.dimension = parsedValue + 2;
+                 } else {
+                     console.log(`Dimension value ${parsedValue} too large (max ${maxDim}). Keeping previous dimension: ${this.dimension}`);
+                     // Keep previousDimension implicitly
+                 }
+
+            } else {
+                // Invalid number or non-'n' text, keep previous dimension
+                console.log("Invalid dimension value received:", text, ". Keeping previous dimension:", this.dimension);
+                // Keep previousDimension implicitly
+            }
+        }
+
+        // Update the grid ONLY if the dimension has actually changed
+        if (this.dimension !== previousDimension) {
+            this.updateGrid(this.dimension); // Call function to handle grid update
+        } else {
+            // console.log(`Dimension remains ${this.dimension}. No grid update needed.`); // Optional log
+        }
+
+        return this.dimension;
+    },
+
+
+
+    setN(text, delay) {
+        setTimeout(() => {
+            this.fireNewN(text);
+        }, delay);
+    },
+
+
+    startFiringSequence() {
+    console.log("[startFiringSequence] Sequence initiated.");
+    let delay = 2000;
+    let increment = 1000;
+    const decayFactor = 0.80;
+
+    for (let i = 2; i <= 18; i++) {
+      this.setN(i.toString(), delay);
+      delay += increment;
+      increment *= decayFactor;
+      increment = Math.max(increment, 150);
+    }
+
+    // Fire the final 'n' after the last number (9) and after clearing
+    console.log(`[startFiringSequence] Scheduling final 'n' (reset to 3x3) with delay: ${delay}`);
+    this.setN('n', delay);
+  },
+ 
+
+    createGridFromObject(obj, containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) {
+            console.error("Container not found:", containerId);
+            return;
+        }
+
+        container.innerHTML = '';
+
+        const dimension = Object.keys(obj).length; // Get dimension from the object itself
+        if (dimension === 0) {
+             console.warn("Grid data object is empty. Cannot create grid.");
+             return;
+        }
+        container.style.display = 'grid'; // Set display to grid
+        const frTrack = `repeat(${dimension}, 1fr)`;
+        container.style.gridTemplateColumns = frTrack;
+        container.style.gridTemplateRows = frTrack;
+
+        // Iterate over the object to create individual divs
+        for (const rowKey in obj) {
+            const rowData = obj[rowKey];
+            for (const colKey in rowData) {
+                const colDiv = document.createElement("div");
+                colDiv.classList.add("cell");
+                colDiv.classList.add(`${rowKey}`); // e.g., "row1"
+                colDiv.classList.add(`${colKey}`); // e.g., "col1"
+                // Use dimension from object keys length for ID generation consistency
+                colDiv.id = `r${this.extractLineNum(rowKey)}c${this.extractLineNum(colKey)}`;
+                if (rowData[colKey] !== 0 && rowData[colKey] !== null && rowData[colKey] !== undefined) { // Check for actual content
+                    colDiv.textContent = rowData[colKey];
+                } else {
+                    colDiv.textContent = "\u00A0"; // Non-breaking space for empty cells
+                }
+                container.appendChild(colDiv);
+            }
+        }
+
+        this.restyleBoard(obj); 
+    },
+
+    extractLineNum(line) {
+        const match = line.match(/\d+/);
+        return match ? match[0] : '0';
+    },
+    restyleBoard(obj) {
+        const container = document.getElementById('gridContainer');
+        if (!container) return;
+
+        const dimension = Object.keys(obj).length;
+        if (dimension === 0) return;
+
+        const cells = container.querySelectorAll('.cell');
+
+        // Remove old border classes first
+        cells.forEach(cell => {
+            cell.classList.remove('top-row', 'bot-row', 'left-col', 'right-col');
+        });
+
+        // Apply new border classes based on current dimension
+        cells.forEach((cell) => {
+            if (cell.classList.contains(`row1`)) cell.classList.add('top-row');
+            if (cell.classList.contains(`row${dimension}`)) cell.classList.add('bot-row');
+            if (cell.classList.contains(`col1`)) cell.classList.add('left-col');
+            if (cell.classList.contains(`col${dimension}`)) cell.classList.add('right-col');
+        });
+    },
+
+    updateGrid(newDimension) {
+        if (typeof newDimension !== 'number' || newDimension <= 0 || !Number.isInteger(newDimension)) {
+            console.error("Invalid dimension for updateGrid:", newDimension);
+            return;
+        }
+        // Update the dimension property - already done in setDimension, but safe to ensure here
+        this.dimension = newDimension;
+        // Generate new grid data
+        this.gridData = this.generateGridData(newDimension);
+        // Re-create the grid elements and apply styles
+        this.createGridFromObject(this.gridData, "gridContainer");
+      // To integrate simply replace reference to gridData and generateGridData to the playBoardObjects
+    }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Query elements inside the listener for safety
+    const tac = document.querySelector(".tac");
+    const dropMain = document.querySelector('.drop-main');
+    const toe = document.querySelector('.toe');
+    const gridContainer = document.getElementById('gridContainer');
+
+    if (tac && dropMain && toe && gridContainer) {
+         rpsUI.tac = tac;
+         rpsUI.dropMain = dropMain;
+         rpsUI.init(); // Initialize the UI object
+    } else {
+        console.error("One or more required HTML elements not found. Initialization aborted. Check IDs/Classes: fireBtn, .tac, .drop-main, .toe, gridContainer");
+    }
+});
 
 console.log('HELLOOOO?')
