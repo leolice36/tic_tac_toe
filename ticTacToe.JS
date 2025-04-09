@@ -160,7 +160,7 @@ const play = {
   },
   turn: 'player1'
   ,
-  status: 'gameActive'
+  status: 'gameInactive'
   ,  
   choosePlayer2: function(player) {
     if (player === 'bot' || player === 'human') {
@@ -971,15 +971,34 @@ const boardUI = {
         this.createGridFromObject(gameBoard.cells, "gridContainer"); 
         this.setupBoxes();   
     },
-
     cellClick(event) {
-        console.log(event.target.id);
+        const box = event.target;
+        if (play.status !== 'gameActive'){
+            return
+        } else if (play.turn === 'player1') {
+            box.textContent = 'X'
+        } else if (play.turn === 'player2') {
+            box.textContent = 'O'
+        }
+        box.removeEventListener('click', this.boundCellClick)
+        box.classList.remove('active')
         },
     setupBoxes() {
+        this.boundCellClick = this.cellClick.bind(this)
         boardUI.boxes = document.querySelectorAll('.cell');
         boardUI.boxes.forEach(box => {
-            box.addEventListener('click', boardUI.cellClick);
+            box.addEventListener('click', this.boundCellClick);
+            box.classList.add('active')
+            this.resizeFont()
             }) 
+    },
+    resizeFont() {
+        const gridSize = gameBoard.dimensions;
+        const fontSize = 400 / gridSize + 'px'; // Adjust for number of cells
+        
+        this.boxes.forEach(box => {
+            box.style.fontSize = fontSize;
+        });
     }
 };
     
