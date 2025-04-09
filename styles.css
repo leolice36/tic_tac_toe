@@ -103,6 +103,7 @@
     overflow: hidden;
     font-family: "Raleway", sans-serif;;
     font-size: 5em;
+    transition: background-color 0.1s ease-out, font-weight 0.1s ease-out;
   }
   
   .cell.active:hover {

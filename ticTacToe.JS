@@ -144,8 +144,6 @@ const gameBoard = {
         // console.log(finalCheck)
         return finalCheck.includes(true)
     },
-    test: function() {
-    }
 };
 
 
@@ -188,12 +186,10 @@ const play = {
   declareWin: function() {
     console.log(`${play.turn} WINS!`)
     play.status = 'gameInactive';
-    gameBoard.reset()
   },
   declareDraw: function() {
     console.log('DRAW')
     play.status = 'gameInactive';
-    gameBoard.reset()
   },
   move: function (move){
     if (play.status === 'gameInactive'){
@@ -250,7 +246,17 @@ const play = {
         }
     }
     
-  }       
+  },
+  identifyWinningLine () {
+    const lines = bot.defineLineObj();
+    if (play.turn === 'player1'){
+        const chosenLine = bot.findRowsWithMostValue(lines, 'X').maxRows
+        return bot.convertChosenLineToMove(chosenLine)
+    } else if (play.turn === 'player2') {
+        const chosenLine = bot.findRowsWithMostValue(lines, 'O').maxRows
+        return bot.convertChosenLineToMove(chosenLine)
+    }
+  },    
 }
 
 const rockPaperScissors = {
@@ -1024,7 +1030,47 @@ const boardUI = {
         this.boxes.forEach(box => {
             box.style.fontSize = fontSize;
         });
-    }
+    },
+    markWinningCells () {
+        const winningBoxIds = play.identifyWinningLine();
+        console.table(winningBoxIds)
+        for (let [index, value] of winningBoxIds.entries()){
+            const boxDiv = document.querySelector(`#${value}`);
+            const delay = index * 200;
+            setTimeout(() => {
+                boxDiv.style.backgroundColor = `#E10808`;
+                boxDiv.style.fontWeight = `900`;
+            },delay)
+        }
+        return 
+    },
+    markDraw () {
+        const allBoxes = document.querySelectorAll('.cell');
+        console.log('yas')
+        let index = 1;
+        
+        allBoxes.forEach( box => {
+            index++
+            const delay = index * 50;
+            console.log(delay)
+            setTimeout(() => {
+                box.style.backgroundColor = `black`;
+                box.style.fontWeight = `900`;
+                box.style.color = `#E10808`
+                box.style.borderColor = `black`
+            },delay)
+        });
+    },
+    defaultUI () {
+        const allBoxes = document.querySelectorAll('.cell');
+
+        allBoxes.forEach( box => {
+                box.style.backgroundColor = ``;
+                box.style.fontWeight = ``;
+                box.style.color = ``
+                box.style.borderColor = ``
+        });
+    }   
 };
     
     document.addEventListener('DOMContentLoaded', () => {
