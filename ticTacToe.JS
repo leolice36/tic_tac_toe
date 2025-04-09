@@ -616,43 +616,28 @@ const boardUI = {
     nArr: [],
     tacFontCounter: 2,
     gridData: {},
+    boxes: [],
 
     init() {
         this.tac.style.top = `${this.pos2}px`;
         this.applySpringPull();
         // Ensure the animation target exists before adding listener
         const toeElement = document.querySelector('.toe');
-        // Generate the grid data object based on the initial dimension
-        // this.gridData = this.generateGridData(this.dimension);
-        if (toeElement) {
-             toeElement.addEventListener('animationend', () => {
-              this.startFiringSequence()
-              });
-        } else {
-            console.warn(".toe element not found for animationend listener.");
-        }
+        // if (toeElement) {
+        //      toeElement.addEventListener('animationend', () => {
+        //       this.startFiringSequence()
+        //       });
+        // } else {
+        //     console.warn(".toe element not found for animationend listener.");
+        // }
         setTimeout(() => {
             this.createGridFromObject(gameBoard.cells, "gridContainer");
+            this.setupBoxes()
         }, 2000);
 
 
 
     },
-
-    // generateGridData(dimension) {
-    //     const newGridData = {};
-    //     for (let i = 1; i <= dimension; i++) {
-    //         const rowKey = `row${i}`; // e.g., "row1", "row2"
-    //         const rowObject = {};
-    //         for (let j = 1; j <= dimension; j++) {
-    //             const colKey = `col${j}`; // e.g., "col1", "col2"
-    //             rowObject[colKey] = 0; // Default value for each cell
-    //         }
-    //         newGridData[rowKey] = rowObject; // Add the row to the main grid object
-    //     }
-    //     return newGridData;
-    // },
-
     fireNewN(text) {
         const newDiv = document.createElement("div");
         newDiv.classList.add("red-n");
@@ -676,7 +661,6 @@ const boardUI = {
         this.nArr.push(n);
         this.animateN(n);
     },
-
     removeExcessN() {
         const maxStuckVisible = 1; // Max STUCK elements allowed
 
@@ -723,7 +707,6 @@ const boardUI = {
             //  console.log(`[removeExcessN] ${stuckCount} stuck items found. No excess stuck items to remove.`);
         }
     },
-
     animateN(n) {
         const self = this;
         // Ensure tac element exists
@@ -820,7 +803,6 @@ const boardUI = {
         // Clean up excess *non-stuck* elements proactively
         setTimeout(() => self.removeExcessN(), 0); // Use timeout to avoid potential conflicts
     },
-
     applySpringPull() {
         const baseSpringSpeed = this.springReturnSpeed;
         const springFactor = 0.05; // How much stretch increases return speed
@@ -849,8 +831,6 @@ const boardUI = {
 
         requestAnimationFrame(this.applySpringPull.bind(this)); // Continue the spring effect
     },
-
-
     setDimension(text) {
         const previousDimension = this.dimension; // Store previous dimension
 
@@ -890,16 +870,11 @@ const boardUI = {
         console.log(this.dimension)
         return this.dimension;
     },
-
-
-
     setN(text, delay) {
         setTimeout(() => {
             this.fireNewN(text);
         }, delay);
     },
-
-
     startFiringSequence() {
     console.log("[startFiringSequence] Sequence initiated.");
     let delay = 2000;
@@ -916,9 +891,7 @@ const boardUI = {
     // Fire the final 'n' after the last number (9) and after clearing
     console.log(`[startFiringSequence] Scheduling final 'n' (reset to 3x3) with delay: ${delay}`);
     this.setN('n', delay);
-  },
- 
-
+    },
     createGridFromObject(obj, containerId) {
         console.log({obj})
         const container = document.getElementById(containerId);
@@ -960,7 +933,6 @@ const boardUI = {
 
         this.restyleBoard(obj); 
     },
-
     extractLineNum(line) {
         const match = line.match(/\d+/);
         return match ? match[0] : '0';
@@ -987,7 +959,6 @@ const boardUI = {
             if (cell.classList.contains(`col${dimension}`)) cell.classList.add('right-col');
         });
     },
-
     updateGrid(newDimension) {
         if (typeof newDimension !== 'number' || newDimension <= 0 || !Number.isInteger(newDimension)) {
             console.error("Invalid dimension for updateGrid:", newDimension);
@@ -995,17 +966,25 @@ const boardUI = {
         }
         // Update the dimension property - already done in setDimension, but safe to ensure here
         gameBoard.dimensions = newDimension;
-        // Generate new grid data
-        // this.gridData = this.generateGridData(newDimension);
         play.setBoard(newDimension)
         // Re-create the grid elements and apply styles
-        this.createGridFromObject(gameBoard.cells, "gridContainer");
-      // To integrate simply replace reference to gridData and generateGridData to the playBoardObjects
+        this.createGridFromObject(gameBoard.cells, "gridContainer"); 
+        this.setupBoxes();   
+    },
+
+    cellClick(event) {
+        console.log(event.target.id);
+        },
+    setupBoxes() {
+        boardUI.boxes = document.querySelectorAll('.cell');
+        boardUI.boxes.forEach(box => {
+            box.addEventListener('click', boardUI.cellClick);
+            }) 
     }
 };
-
-document.addEventListener('DOMContentLoaded', () => {
-    // Query elements inside the listener for safety
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        // Query elements inside the listener for safety
     const tac = document.querySelector(".tac");
     const dropMain = document.querySelector('.drop-main');
     const toe = document.querySelector('.toe');
