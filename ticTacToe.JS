@@ -1,8 +1,8 @@
 const gameBoard = {
     cells: {
-        row1: { col1: 0, col2: 0, col3: 0 },
-        row2: { col1: 0, col2: 0, col3: 0 },
-        row3: { col1: 0, col2: 0, col3: 0 }
+        row1: { col1: 0, col2: 0, col3: 0},
+        row2: { col1: 0, col2: 0, col3: 0},
+        row3: { col1: 0, col2: 0, col3: 0}
     },
 
     dimensions: 3,
@@ -604,7 +604,7 @@ const bot = {
         }    
     }
 }
-const rpsUI = {
+const boardUI = {
     dimension: 3,
     tac: document.querySelector(".tac"),
     dropMain: document.querySelector('.drop-main'),
@@ -623,7 +623,7 @@ const rpsUI = {
         // Ensure the animation target exists before adding listener
         const toeElement = document.querySelector('.toe');
         // Generate the grid data object based on the initial dimension
-        this.gridData = this.generateGridData(this.dimension);
+        // this.gridData = this.generateGridData(this.dimension);
         if (toeElement) {
              toeElement.addEventListener('animationend', () => {
               this.startFiringSequence()
@@ -632,26 +632,26 @@ const rpsUI = {
             console.warn(".toe element not found for animationend listener.");
         }
         setTimeout(() => {
-            this.createGridFromObject(this.gridData, "gridContainer");
+            this.createGridFromObject(gameBoard.cells, "gridContainer");
         }, 2000);
 
 
 
     },
 
-    generateGridData(dimension) {
-        const newGridData = {};
-        for (let i = 1; i <= dimension; i++) {
-            const rowKey = `row${i}`; // e.g., "row1", "row2"
-            const rowObject = {};
-            for (let j = 1; j <= dimension; j++) {
-                const colKey = `col${j}`; // e.g., "col1", "col2"
-                rowObject[colKey] = 0; // Default value for each cell
-            }
-            newGridData[rowKey] = rowObject; // Add the row to the main grid object
-        }
-        return newGridData;
-    },
+    // generateGridData(dimension) {
+    //     const newGridData = {};
+    //     for (let i = 1; i <= dimension; i++) {
+    //         const rowKey = `row${i}`; // e.g., "row1", "row2"
+    //         const rowObject = {};
+    //         for (let j = 1; j <= dimension; j++) {
+    //             const colKey = `col${j}`; // e.g., "col1", "col2"
+    //             rowObject[colKey] = 0; // Default value for each cell
+    //         }
+    //         newGridData[rowKey] = rowObject; // Add the row to the main grid object
+    //     }
+    //     return newGridData;
+    // },
 
     fireNewN(text) {
         const newDiv = document.createElement("div");
@@ -686,7 +686,7 @@ const rpsUI = {
 
         if (stuckCount > maxStuckVisible) {
             const removeCount = stuckCount - maxStuckVisible;
-            console.log(`[removeExcessN] Found ${stuckCount} stuck items. Need to remove ${removeCount} older ones.`);
+            // console.log(`[removeExcessN] Found ${stuckCount} stuck items. Need to remove ${removeCount} older ones.`);
 
 
             const itemsToRemove = [];
@@ -699,28 +699,28 @@ const rpsUI = {
                 }
             }
 
-            console.log("[removeExcessN] Stuck items identified for removal:", itemsToRemove.map(item => item.el?.textContent));
+            // console.log("[removeExcessN] Stuck items identified for removal:", itemsToRemove.map(item => item.el?.textContent));
 
             // Remove elements from DOM and array
             itemsToRemove.forEach(itemToRemove => {
                 const indexToRemove = this.nArr.findIndex(item => item === itemToRemove);
 
                 if (indexToRemove !== -1) {
-                    console.log(`[removeExcessN] Removing STUCK element at index ${indexToRemove}:`, itemToRemove.el.textContent);
+                    // console.log(`[removeExcessN] Removing STUCK element at index ${indexToRemove}:`, itemToRemove.el.textContent);
                     if (itemToRemove.el && itemToRemove.el.parentNode) {
                         itemToRemove.el.remove();
                     } else {
-                        console.warn(`[removeExcessN] Stuck element ${itemToRemove.el?.textContent} already removed from DOM or invalid.`);
+                        // console.warn(`[removeExcessN] Stuck element ${itemToRemove.el?.textContent} already removed from DOM or invalid.`);
                     }
                     this.nArr.splice(indexToRemove, 1);
                 } else {
-                     console.warn(`[removeExcessN] Could not find STUCK item in nArr for removal:`, itemToRemove);
+                    //  console.warn(`[removeExcessN] Could not find STUCK item in nArr for removal:`, itemToRemove);
                 }
             });
-            console.log(`[removeExcessN] nArr length after STUCK removal: ${this.nArr.length}`);
+            // console.log(`[removeExcessN] nArr length after STUCK removal: ${this.nArr.length}`);
 
         } else {
-             console.log(`[removeExcessN] ${stuckCount} stuck items found. No excess stuck items to remove.`);
+            //  console.log(`[removeExcessN] ${stuckCount} stuck items found. No excess stuck items to remove.`);
         }
     },
 
@@ -878,14 +878,16 @@ const rpsUI = {
                 // Keep previousDimension implicitly
             }
         }
+        gameBoard.dimensions = this.dimension;
 
         // Update the grid ONLY if the dimension has actually changed
         if (this.dimension !== previousDimension) {
-            this.updateGrid(this.dimension); // Call function to handle grid update
+            this.updateGrid(gameBoard.dimensions); // Call function to handle grid update
         } else {
             // console.log(`Dimension remains ${this.dimension}. No grid update needed.`); // Optional log
         }
-
+        console.log(gameBoard.dimensions)
+        console.log(this.dimension)
         return this.dimension;
     },
 
@@ -918,6 +920,7 @@ const rpsUI = {
  
 
     createGridFromObject(obj, containerId) {
+        console.log({obj})
         const container = document.getElementById(containerId);
         if (!container) {
             console.error("Container not found:", containerId);
@@ -991,11 +994,12 @@ const rpsUI = {
             return;
         }
         // Update the dimension property - already done in setDimension, but safe to ensure here
-        this.dimension = newDimension;
+        gameBoard.dimensions = newDimension;
         // Generate new grid data
-        this.gridData = this.generateGridData(newDimension);
+        // this.gridData = this.generateGridData(newDimension);
+        play.setBoard(newDimension)
         // Re-create the grid elements and apply styles
-        this.createGridFromObject(this.gridData, "gridContainer");
+        this.createGridFromObject(gameBoard.cells, "gridContainer");
       // To integrate simply replace reference to gridData and generateGridData to the playBoardObjects
     }
 };
@@ -1008,9 +1012,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const gridContainer = document.getElementById('gridContainer');
 
     if (tac && dropMain && toe && gridContainer) {
-         rpsUI.tac = tac;
-         rpsUI.dropMain = dropMain;
-         rpsUI.init(); // Initialize the UI object
+         boardUI.tac = tac;
+         boardUI.dropMain = dropMain;
+         boardUI.init(); // Initialize the UI object
     } else {
         console.error("One or more required HTML elements not found. Initialization aborted. Check IDs/Classes: fireBtn, .tac, .drop-main, .toe, gridContainer");
     }
