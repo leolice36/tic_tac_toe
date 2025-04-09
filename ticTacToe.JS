@@ -545,7 +545,6 @@ const bot = {
                 gameBoard.cells[`row${dimension}`][`col${dimension}`],
                 gameBoard.cells[`row${1}`][`col${dimension}`],
             ]
-            // const numberOfMarkInCornerFour = cornerFour.filter(val => val === 'O').length;
             const availablePositions = bot.findZeroCells();
             const positionsInLinesX = bot.convertChosenLineToMove(mostX);
             const positionsInLinesO = bot.convertChosenLineToMove(mostO);
@@ -554,9 +553,7 @@ const bot = {
             const mostXAvailable = bot.getOverlap(positionsInLinesX,availablePositions);
             const mostOAvailable = bot.getOverlap(positionsInLinesO,availablePositions);
             const win = mostOAvailable.length
-            // console.log({positionsInLinesO})
-            // console.log({mostOAvailable})
-            // console.log({win})
+            let chosenMove
             if (play.turn !== 'player2'){
                 console.log('not your turn')
                 return
@@ -574,33 +571,36 @@ const bot = {
                 // console.log('mostX = 1')
                 const availableMoves = bot.getOverlap(positionsInLinesX,availablePositions);
                 const randomMoveIndex = Math.floor(Math.random() * availableMoves.length);
-                const chosenMove = availableMoves[randomMoveIndex]
+                chosenMove = availableMoves[randomMoveIndex]
                 play.move(`${chosenMove}`)
             }else if ((mostOAvailable.length === 1) && (mostOCount === dimension-1)) {
                     // console.log('winning move')
                     const randomMoveIndex = Math.floor(Math.random() * mostOAvailable.length);
-                    const chosenMove = mostOAvailable[randomMoveIndex]
+                    chosenMove = mostOAvailable[randomMoveIndex]
                     play.move(`${chosenMove}`)
             } else if (mostXCount > mostOCount){
                 // console.log('mostXCount > mostOCount')
                 const randomMoveIndex = Math.floor(Math.random() * mostXAvailable.length);
-                const chosenMove = mostXAvailable[randomMoveIndex]
+                chosenMove = mostXAvailable[randomMoveIndex]
                 play.move(`${chosenMove}`)
             } else if (overlapXOAvail.length > 0) {
                     // console.log('overlapXOAvail.length > 0')
                     const randomMoveIndex = Math.floor(Math.random() * overlapXOAvail.length);
-                    const chosenMove = overlapXOAvail[randomMoveIndex]
+                    chosenMove = overlapXOAvail[randomMoveIndex]
                     play.move(`${chosenMove}`)
             } else if (mostOAvailable.length > 0) {
                 // console.log('else')
                 const randomMoveIndex = Math.floor(Math.random() * mostOAvailable.length);
-                const chosenMove = mostOAvailable[randomMoveIndex]
+                chosenMove = mostOAvailable[randomMoveIndex]
                 play.move(`${chosenMove}`)
             } else {
                 const randomMoveIndex = Math.floor(Math.random() * availablePositions.length);
-                const chosenMove = availablePositions[randomMoveIndex]
+                chosenMove = availablePositions[randomMoveIndex]
                 play.move(`${chosenMove}`)
             }
+            
+            const chosenBox = document.querySelector(`#${chosenMove}`)
+            chosenBox.textContent = 'O';
         }    
     }
 }
@@ -977,8 +977,10 @@ const boardUI = {
             return
         } else if (play.turn === 'player1') {
             box.textContent = 'X'
+            play.move(`${box.id}`)
         } else if (play.turn === 'player2') {
             box.textContent = 'O'
+            play.move(`${box.id}`)
         }
         box.removeEventListener('click', this.boundCellClick)
         box.classList.remove('active')
