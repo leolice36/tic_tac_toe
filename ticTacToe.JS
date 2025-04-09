@@ -40,11 +40,17 @@ const gameBoard = {
     },
   
     reset: function() {
+        const boxes = document.querySelectorAll('.cell'); 
         for (let row in this.cells) {
             for (let col in this.cells[row]) {
                 this.cells[row][col] = 0;
             }
         }
+        for (let box of boxes) {
+            box.textContent = '';
+            console.log(box.textContent)
+        }
+        console.log(boxes)
     },
     
     allEqualAndNotZero: function(row) {
@@ -559,12 +565,18 @@ const bot = {
                 return
             } else if ((((dimension % 2) !== 0)) 
                 && (gameBoard.cells[`row${centerNumber}`][`col${centerNumber}`] === 0)){
+                    chosenMove = `r${centerNumber}c${centerNumber}`
+                    const chosenBox = document.querySelector(`#${chosenMove}`)
+                    chosenBox.textContent = 'O';
                     play.move(`r${centerNumber}c${centerNumber}`)
                     
             } else if (((dimension % 2) === 0) && (numberOfMarkInCenterFour < 2)  && (centerFour.includes(0))){
                 while (current !== numberOfMarkInCenterFour +1) {
                     const randomRow = Math.random() < 0.5 ? (dimension / 2) : (dimension / 2 + 1);
                     const randomCol = Math.random() < 0.5 ? (dimension / 2) : (dimension / 2 + 1);
+                    chosenMove = `r${randomRow}c${randomCol}`
+                    const chosenBox = document.querySelector(`#${chosenMove}`)
+                    chosenBox.textContent = 'O';
                     play.move(`r${randomRow}c${randomCol}`)
                 }
             } else if (Object.keys(mostX).length === 1 && bot.getOverlap(positionsInLinesX,availablePositions).length > 0) {
@@ -572,35 +584,46 @@ const bot = {
                 const availableMoves = bot.getOverlap(positionsInLinesX,availablePositions);
                 const randomMoveIndex = Math.floor(Math.random() * availableMoves.length);
                 chosenMove = availableMoves[randomMoveIndex]
+                const chosenBox = document.querySelector(`#${chosenMove}`)
+                chosenBox.textContent = 'O';
                 play.move(`${chosenMove}`)
             }else if ((mostOAvailable.length === 1) && (mostOCount === dimension-1)) {
                     // console.log('winning move')
                     const randomMoveIndex = Math.floor(Math.random() * mostOAvailable.length);
                     chosenMove = mostOAvailable[randomMoveIndex]
+                    const chosenBox = document.querySelector(`#${chosenMove}`)
+                    chosenBox.textContent = 'O';
                     play.move(`${chosenMove}`)
             } else if (mostXCount > mostOCount){
                 // console.log('mostXCount > mostOCount')
                 const randomMoveIndex = Math.floor(Math.random() * mostXAvailable.length);
                 chosenMove = mostXAvailable[randomMoveIndex]
+                const chosenBox = document.querySelector(`#${chosenMove}`)
+                chosenBox.textContent = 'O';
                 play.move(`${chosenMove}`)
             } else if (overlapXOAvail.length > 0) {
                     // console.log('overlapXOAvail.length > 0')
                     const randomMoveIndex = Math.floor(Math.random() * overlapXOAvail.length);
                     chosenMove = overlapXOAvail[randomMoveIndex]
+                    const chosenBox = document.querySelector(`#${chosenMove}`)
+                    chosenBox.textContent = 'O';
                     play.move(`${chosenMove}`)
             } else if (mostOAvailable.length > 0) {
                 // console.log('else')
                 const randomMoveIndex = Math.floor(Math.random() * mostOAvailable.length);
                 chosenMove = mostOAvailable[randomMoveIndex]
+                const chosenBox = document.querySelector(`#${chosenMove}`)
+                chosenBox.textContent = 'O';
                 play.move(`${chosenMove}`)
             } else {
                 const randomMoveIndex = Math.floor(Math.random() * availablePositions.length);
                 chosenMove = availablePositions[randomMoveIndex]
+                const chosenBox = document.querySelector(`#${chosenMove}`)
+                chosenBox.textContent = 'O';
                 play.move(`${chosenMove}`)
             }
             
-            const chosenBox = document.querySelector(`#${chosenMove}`)
-            chosenBox.textContent = 'O';
+            
         }    
     }
 }
