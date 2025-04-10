@@ -14,11 +14,7 @@
     justify-content: space-between;
     align-items: center;
   }
-  #options {
-    height: 200px;
-    width: 700px;
-    background-color: black;
-  }
+
   .header{
     padding-top: 5vh;
     padding-bottom: 10vh;
@@ -123,5 +119,107 @@
   .right-col {
     border-right: var(--board-lines) solid white;
   }
+  #options {
+    height: 100px;
+    width: 60vh;
+    color: black;
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    border: none;
+    background-color: none;
+  }
   
+  #options > *{
+    border: none;
+    position: relative;
+    
+  }
+
+  .options-sub > *{
+    position: absolute;
+    border: none;
+    user-select: none;
+  }
+  #start {
+    font-family: "Raleway", sans-serif;
+    font-size: 2rem;
+    font-weight: 300;
+    color:white;
+    background-color: black;
+    cursor: pointer;
+    user-select: none;
+  }
+#start.inactive {
+    text-decoration: line-through;
+    text-decoration-thickness: 6px;
+    text-decoration-color: white;
+    cursor: default;
+  }
+  #message {
+    top: 51px;
+    left: 20px;
+    font-family: "Raleway", sans-serif;
+    font-size: 0.75rem;
+    font-weight: 200;
+  }
+
+  #player1, #player2 {
+    font-family: "Raleway", sans-serif;
+    font-size: 1.5rem;
+    font-weight: 200;
+    user-select: none;
+    cursor: pointer;
+  }
+  #players{
+    position: relative;
+  }
+  #player1 {
+    top: 14px;
+    left: 110px;
+    font-weight: 300;
+  }
+  #player2 {
+    top: 15px;
+    left: 114px;
+    background-color: #E10808;
+    color: white;
+    font-weight: 400;
+    z-index: -1;
+  }
+.input-container > *{
+  font-size: 1rem;
+  color: #E10808;
+  font-family: "Zilla Slab Highlight", serif;
   
+}
+.input-container{
+  position: absolute;
+  height: 23px;
+  width: 49px;
+  background-color: #E10808;
+  right: 0;
+  overflow: hidden;
+}
+label[for = 'n-input']{
+  position: absolute;
+  left: 2px;
+  top: -3px;
+  background-color: white;
+  height: 19px;
+  
+}
+#n-input {
+  top: -1px;
+  position: absolute;
+  width: 24px;
+  background-color: #E10808;
+  color: white;
+  height: 20px;
+  right: 0;
+}
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+

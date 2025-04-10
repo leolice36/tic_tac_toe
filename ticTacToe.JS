@@ -165,7 +165,14 @@ const play = {
   turn: 'player1'
   ,
   status: 'gameInactive'
-  ,  
+  ,
+  get status() {
+    return this._status;
+  },
+  set status(value) {
+    this._status = value;
+    boardUI.handleStart(); // call your function on change
+  },
   choosePlayer2: function(player) {
     if (player === 'bot' || player === 'human') {
         this.players.player2 = player
@@ -633,6 +640,7 @@ const bot = {
         }    
     }
 }
+
 const boardUI = {
     dimension: 3,
     tac: document.querySelector(".tac"),
@@ -663,9 +671,41 @@ const boardUI = {
             this.createGridFromObject(gameBoard.cells, "gridContainer");
             this.setupBoxes()
         }, 2000);
-
-
-
+        document.getElementById('players').addEventListener('click', () => boardUI.togglePlayers());
+        play.status = 'gameInactive'
+    },
+    isClickEnabled: true,
+    togglePlayers() {
+        console.log(this.isClickEnabled)
+        const message = document.getElementById('message')
+        message.textContent = 'set n set n set n';
+        if (!this.isClickEnabled) return;  // Prevent further clicks while processing
+        this.isClickEnabled = false;  // Disable clicking temporarily
+        const player1 = document.getElementById('player1');
+        const player2 = document.getElementById('player2');
+        
+        if (player1.textContent === 'Player1') {
+        player1.textContent = 'HuMan';
+        player2.textContent = 'bOt';
+        play.players.player2 = 'bot'
+        } else {
+        player1.textContent = 'Player1';
+        player2.textContent = 'Player2';
+        play.players.player2 = 'human'
+        }
+        console.log(play.players.player2)
+        setTimeout(() => {
+            this.isClickEnabled = true;
+        }, 500);  // 1000 milliseconds = 1 second
+    },
+    handleStart() {
+        const start = document.querySelector('#start');
+        if (play.status === 'gameInactive') {
+            console.log('YAS')
+            start.classList.add('inactive')
+        } else if (play.status === 'gameActive'){
+            start.classList.remove('inactive')
+        }
     },
     fireNewN(text) {
         const newDiv = document.createElement("div");
@@ -1070,7 +1110,8 @@ const boardUI = {
                 box.style.color = ``
                 box.style.borderColor = ``
         });
-    }   
+    },
+    
 };
     
     document.addEventListener('DOMContentLoaded', () => {
@@ -1084,9 +1125,33 @@ const boardUI = {
          boardUI.tac = tac;
          boardUI.dropMain = dropMain;
          boardUI.init(); // Initialize the UI object
+         
     } else {
         console.error("One or more required HTML elements not found. Initialization aborted. Check IDs/Classes: fireBtn, .tac, .drop-main, .toe, gridContainer");
     }
 });
 
 console.log('HELLOOOO?')
+
+//     let isClickEnabled =  true;
+//     function togglePlayers() {
+//         console.log({isClickEnabled})
+//         if (!isClickEnabled) return;  // Prevent further clicks while processing
+
+//         isClickEnabled = false;  // Disable clicking temporarily
+//         const player1 = document.getElementById('player1');
+//         const player2 = document.getElementById('player2');
+        
+//         if (player1.textContent === 'Player1') {
+//         player1.textContent = 'HuMan';
+//         player2.textContent = 'bOt';
+//         } else {
+//         player1.textContent = 'Player1';
+//         player2.textContent = 'Player2';
+//         }
+//         setTimeout(() => {
+//             isClickEnabled = true;
+//         }, 500);  // 1000 milliseconds = 1 second
+//   }
+
+  
