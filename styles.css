@@ -223,3 +223,17 @@ input[type="number"]::-webkit-inner-spin-button {
   margin: 0;
 }
 
+#countdownBox {
+  position: fixed;
+  top: 81%;
+  left: 50%;
+  font-family: "Zilla Slab Highlight", serif;;
+  transform: translate(-50%, -50%);
+  padding: 40px 40px;
+  color: black;
+  font-size: 4rem;
+  border-radius: 10px;
+  display: block;
+  z-index: 9999;
+}
+

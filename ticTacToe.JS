@@ -316,11 +316,19 @@ const play = {
   },
   declareWin: function() {
     console.log(`${play.turn} WINS!`)
-    play.status = 'gameInactive';
+    // play.status = 'gameInactive';
+    boardUI.markWinningCells()
+    play.status = 'gameInactive'
+    boardUI.activate()
+    boardUI.startCountdown()
   },
   declareDraw: function() {
     console.log('DRAW')
+    // play.status = 'gameInactive';
+    boardUI.markDraw()
+    boardUI.startCountdown()
     play.status = 'gameInactive';
+    boardUI.activate()
   },
   move: function (move){
     if (play.status === 'gameInactive'){
@@ -670,13 +678,13 @@ const boardUI = {
         this.applySpringPull();
         const toeElement = document.querySelector('.toe');
         play.status = 'gameInactive'
-        // if (toeElement) {
-        //      toeElement.addEventListener('animationend', () => {
-        //       this.startFiringSequence()
-        //       });
-        // } else {
-        //     console.warn(".toe element not found for animationend listener.");
-        // }
+        if (toeElement) {
+             toeElement.addEventListener('animationend', () => {
+              this.startFiringSequence()
+              });
+        } else {
+            console.warn(".toe element not found for animationend listener.");
+        }
         setTimeout(() => {
             this.createGridFromObject(gameBoard.cells, "gridContainer");
             this.setupBoxes()
@@ -736,7 +744,7 @@ const boardUI = {
     togglePlayers() {
         console.log(this.isClickEnabled)
         const message = document.getElementById('message')
-        message.textContent = 'set n set n set n';
+        message.textContent = 'set n set n set nter';
         if (!this.isClickEnabled) return;  // Prevent further clicks while processing
         this.isClickEnabled = false;  // Disable clicking temporarily
         const player1 = document.getElementById('player1');
@@ -774,7 +782,7 @@ const boardUI = {
         }
     },
     fireNewN(text) {
-        if (text <= 20 && text > 0){
+        if (text <= 20 && text > 0 || text === 'n'){
             const newDiv = document.createElement("div");
             const message = document.querySelector('#message')
             newDiv.classList.add("red-n");
@@ -922,7 +930,11 @@ const boardUI = {
 
 
                 // Set dimension based on the text content ('n' or number)
+                if (n.el.textContent === 'n'){
+                    self.setDimension(1);
+                }else {
                 self.setDimension(n.el.textContent);
+                }
 
                  self.removeExcessN(); // Call cleanup
 
@@ -1150,6 +1162,14 @@ const boardUI = {
     },
     markWinningCells () {
         const winningBoxIds = play.identifyWinningLine();
+        const winningTurn = play.turn;
+        const winningPlayer = document.querySelector(`#${winningTurn}`)
+        let losingPlayer = null;
+        if (winningTurn === 'player1'){
+            losingPlayer = document.querySelector(`#player2`)
+        } else {
+            losingPlayer = document.querySelector(`#player1`)
+        }
         console.table(winningBoxIds)
         for (let [index, value] of winningBoxIds.entries()){
             const boxDiv = document.querySelector(`#${value}`);
@@ -1159,6 +1179,15 @@ const boardUI = {
                 boxDiv.style.fontWeight = `900`;
             },delay)
         }
+        winningPlayer.textContent = winningPlayer.textContent + ' WIN';
+        winningPlayer.style.fontWeight = '400';
+        winningPlayer.style.backgroundColor = 'black';
+        winningPlayer.style.color = 'white';
+        console.log({losingPlayer})
+        const message =  document.querySelector('#message');
+        message.textContent = `${losingPlayer.textContent} SUCKS`
+        losingPlayer.textContent = '';
+        losingPlayer.style.backgroundColor = 'white';
         return 
     },
     markDraw () {
@@ -1177,18 +1206,60 @@ const boardUI = {
                 box.style.borderColor = `black`
             },delay)
         });
+        const player1 = document.querySelector('#player1')
+        const player2 = document.querySelector('#player2')
+        player1.style.backgroundColor = '#E10808'
+        player1.style.color = `black`;
+        player2.style.backgroundColor = 'black'
+        player2.style.color = `#E10808`;
+        player1.textContent = 'DRAW'
+        player2.textContent = `DRAW`;
+        const message =  document.querySelector('#message');
+        message.textContent = "k."
     },
     defaultUI () {
         const allBoxes = document.querySelectorAll('.cell');
-
         allBoxes.forEach( box => {
                 box.style.backgroundColor = ``;
                 box.style.fontWeight = ``;
                 box.style.color = ``
                 box.style.borderColor = ``
         });
+        const start = document.querySelector('#start');
+        const input = document.querySelector('#n-input');
+        const message =  document.querySelector('#message');
+        const player1 = document.querySelector('#player1')
+        const player2 = document.querySelector('#player2')
+        player1.removeAttribute('style');
+        player2.removeAttribute('style');
+        this.togglePlayers()
+        this.togglePlayers()
+        input.removeAttribute('style');
+        message.textContent = "Just start again"
+
     },
-    
+    startCountdown(seconds = 5) {
+        const box = document.getElementById('countdownBox');
+        box.style.display = 'block';
+  
+        let remaining = seconds;
+        box.textContent = remaining;
+  
+        const interval = setInterval(() => {
+          remaining--;
+          if (remaining <= 0) {
+            clearInterval(interval);
+            box.style.display = 'none';
+            this.defaultUI()
+            const inputValue = document.querySelector('#n-input').value;
+            boardUI.fireNewN('20');
+            boardUI.fireNewN('n');
+            gameBoard.reset()
+          } else {
+            box.textContent = remaining;
+          }
+        }, 1000);
+    }
 };
     
     document.addEventListener('DOMContentLoaded', () => {
