@@ -149,7 +149,7 @@
     cursor: pointer;
     user-select: none;
   }
-#start.inactive {
+#start.not-ready {
     text-decoration: line-through;
     text-decoration-thickness: 6px;
     text-decoration-color: white;

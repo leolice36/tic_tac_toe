@@ -1,3 +1,132 @@
+// const rockPaperScissors = {
+//     getHumanChoice: function(humanChoice){
+//         if (humanChoice === null) {
+//             console.log("Prompt was canceled. Returning 'CANCELED'.")
+//         } else {
+//             return humanChoice
+//         }
+//     },
+//     getComputerChoice: function(humanChoiceFinal){
+//         function convertToSeed(rawChoice){
+//             if (rawChoice === "ROCK"){
+//                 return 1;
+//             }
+//             else if (rawChoice === "PAPER"){
+//                 return 2;
+//             }
+//             else if (rawChoice === "SCISSORS"){
+//                 return 3;
+//             }
+//             else if (rawChoice === "CANCELED") {
+//                 return undefined
+//             }
+//         }
+//         function pseudoRNG(seed) {
+//             if (seed === undefined){
+//                 return 
+//             }
+//             else if (![1, 2, 3].includes(seed)) {
+//                 throw new Error("Invalid seed. Seed must be 1, 2, or 3.");
+//             }
+//             else {
+        
+//                 // Generate a random number between 0 and 1
+//                 const rand = Math.random();
+        
+//                 // 33% chance to match the seed
+//                 if (rand < 0.33) {
+//                     return seed;
+//                 }
+        
+//                 // 36% chance to "beat" the seed
+//                 else if (rand < 0.69) {
+//                     // Beat logic: 1 beats 3, 2 beats 1, 3 beats 2
+//                     if (seed === 1) return 2;
+//                     if (seed === 2) return 3;
+//                     if (seed === 3) return 1;
+//                 }
+        
+//                 // 31% chance to return something other than seed or "beat"
+//                 else {
+//                     let options = [1, 2, 3].filter(num => num !== seed && num !== (seed % 3) + 1);
+//                     return options[Math.floor(Math.random()*options.length)];
+//                 }
+//             }
+//         }
+//         if (humanChoiceFinal === undefined )
+//             console.log("WHAT A BITCH");
+//         else {
+//             let humanChoiceConverted = convertToSeed(humanChoiceFinal)
+//             let computerChoice = pseudoRNG(humanChoiceConverted)
+//             let computerChoiceFinal;
+//             if (computerChoice === undefined) {
+//                 computerChoiceFinal = "CANCELED";
+//             } else if (computerChoice == 1){
+//                 computerChoiceFinal = "ROCK";
+//             } else if (computerChoice == 2) {
+//                 computerChoiceFinal = "PAPER";
+//             } else if (computerChoice == 3) {
+//                 computerChoiceFinal = "SCISSORS";
+//             }
+//         return computerChoiceFinal
+//         }
+//     },
+//     rpsScore: {
+//         humanScore: 0,
+//         computerScore: 0
+//     },
+//     checkGame: function() {
+//         const humanScore = this.rpsScore.humanScore
+//         const computerScore = this.rpsScore.computerScore
+//         if (humanScore > computerScore) {
+//             if (play.players.player2 === 'human'){
+//                 console.log(`Player 1 WIN!`);
+//             } else {
+//                 console.log(`HUMAN WIN!`);
+//             }
+//             play.turn = 'player1'
+//             this.rpsScore.humanScore = 0
+//         } else if (humanScore < computerScore) {
+//             if (play.players.player2 === 'human'){
+//                 console.log(`Player 2 WIN!`);
+//             } else {
+//                 console.log(`COMPUTER WIN!`);
+//             }
+//             play.turn = 'player2'
+//             this.rpsScore.computerScore = 0
+//         }
+//     },
+//     play: function(humanChoice) {
+//         this.getHumanChoice(humanChoice);
+//         let computerChoice = this.getComputerChoice(humanChoice);
+        
+//         if (humanChoice ==='CANCELED') {
+//             console.log("Exiting game.");
+//             return
+//         }
+    
+//         if (humanChoice === computerChoice){
+//             console.log("AGAIN!")
+//             this.checkGame()
+//             return
+//         }
+//         else if(
+//             (humanChoice === "ROCK" && computerChoice === "SCISSORS")
+//             || (humanChoice === "SCISSORS" && computerChoice === "PAPER")
+//             || (humanChoice === "PAPER" && computerChoice === "ROCK")
+//             ){
+//             this.rpsScore.humanScore = 1; 
+//             console.log(this.rpsScore.humanScore)
+//             this.checkGame()
+//         }
+//         else{
+//             this.rpsScore.computerScore = 1
+//             console.log(this.rpsScore.computerScore)
+//             this.checkGame()
+//         }
+//         console.log(`${play.turn} turn`)
+//     }
+// }
 const gameBoard = {
     cells: {
         row1: { col1: 0, col2: 0, col3: 0},
@@ -48,9 +177,7 @@ const gameBoard = {
         }
         for (let box of boxes) {
             box.textContent = '';
-            console.log(box.textContent)
         }
-        console.log(boxes)
     },
     
     allEqualAndNotZero: function(row) {
@@ -146,21 +273,18 @@ const gameBoard = {
     },
 };
 
-
 const play = {
   start: function () {
-    
     gameBoard.reset()
     play.status = 'gameActive';
-    console.log('CHOOSE ENEMY choosePlayer2(bot/human)')
-    console.log('CHOOSE board dimension setBoard(cells per side)')
-    console.log('ROCK PAPER SCISSORS: rockPaperScissors.play("ROCK/PAPER/SCISSORS")')
+    boardUI.deactivate();
+
     console.log('GAME START')
     console.table(gameBoard.cells)
   },
   players: {
     player1: 'human', 
-    player2: 'bot'
+    player2: 'human'
   },
   turn: 'player1'
   ,
@@ -264,136 +388,6 @@ const play = {
         return bot.convertChosenLineToMove(chosenLine)
     }
   },    
-}
-
-const rockPaperScissors = {
-    getHumanChoice: function(humanChoice){
-        if (humanChoice === null) {
-            console.log("Prompt was canceled. Returning 'CANCELED'.")
-        } else {
-            return humanChoice
-        }
-    },
-    getComputerChoice: function(humanChoiceFinal){
-        function convertToSeed(rawChoice){
-            if (rawChoice === "ROCK"){
-                return 1;
-            }
-            else if (rawChoice === "PAPER"){
-                return 2;
-            }
-            else if (rawChoice === "SCISSORS"){
-                return 3;
-            }
-            else if (rawChoice === "CANCELED") {
-                return undefined
-            }
-        }
-        function pseudoRNG(seed) {
-            if (seed === undefined){
-                return 
-            }
-            else if (![1, 2, 3].includes(seed)) {
-                throw new Error("Invalid seed. Seed must be 1, 2, or 3.");
-            }
-            else {
-        
-                // Generate a random number between 0 and 1
-                const rand = Math.random();
-        
-                // 33% chance to match the seed
-                if (rand < 0.33) {
-                    return seed;
-                }
-        
-                // 36% chance to "beat" the seed
-                else if (rand < 0.69) {
-                    // Beat logic: 1 beats 3, 2 beats 1, 3 beats 2
-                    if (seed === 1) return 2;
-                    if (seed === 2) return 3;
-                    if (seed === 3) return 1;
-                }
-        
-                // 31% chance to return something other than seed or "beat"
-                else {
-                    let options = [1, 2, 3].filter(num => num !== seed && num !== (seed % 3) + 1);
-                    return options[Math.floor(Math.random()*options.length)];
-                }
-            }
-        }
-        if (humanChoiceFinal === undefined )
-            console.log("WHAT A BITCH");
-        else {
-            let humanChoiceConverted = convertToSeed(humanChoiceFinal)
-            let computerChoice = pseudoRNG(humanChoiceConverted)
-            let computerChoiceFinal;
-            if (computerChoice === undefined) {
-                computerChoiceFinal = "CANCELED";
-            } else if (computerChoice == 1){
-                computerChoiceFinal = "ROCK";
-            } else if (computerChoice == 2) {
-                computerChoiceFinal = "PAPER";
-            } else if (computerChoice == 3) {
-                computerChoiceFinal = "SCISSORS";
-            }
-        return computerChoiceFinal
-        }
-    },
-    rpsScore: {
-        humanScore: 0,
-        computerScore: 0
-    },
-    checkGame: function() {
-        const humanScore = this.rpsScore.humanScore
-        const computerScore = this.rpsScore.computerScore
-        if (humanScore > computerScore) {
-            if (play.players.player2 === 'human'){
-                console.log(`Player 1 WIN!`);
-            } else {
-                console.log(`HUMAN WIN!`);
-            }
-            play.turn = 'player1'
-            this.rpsScore.humanScore = 0
-        } else if (humanScore < computerScore) {
-            if (play.players.player2 === 'human'){
-                console.log(`Player 2 WIN!`);
-            } else {
-                console.log(`COMPUTER WIN!`);
-            }
-            play.turn = 'player2'
-            this.rpsScore.computerScore = 0
-        }
-    },
-    play: function(humanChoice) {
-        this.getHumanChoice(humanChoice);
-        let computerChoice = this.getComputerChoice(humanChoice);
-        
-        if (humanChoice ==='CANCELED') {
-            console.log("Exiting game.");
-            return
-        }
-    
-        if (humanChoice === computerChoice){
-            console.log("AGAIN!")
-            this.checkGame()
-            return
-        }
-        else if(
-            (humanChoice === "ROCK" && computerChoice === "SCISSORS")
-            || (humanChoice === "SCISSORS" && computerChoice === "PAPER")
-            || (humanChoice === "PAPER" && computerChoice === "ROCK")
-            ){
-            this.rpsScore.humanScore = 1; 
-            console.log(this.rpsScore.humanScore)
-            this.checkGame()
-        }
-        else{
-            this.rpsScore.computerScore = 1
-            console.log(this.rpsScore.computerScore)
-            this.checkGame()
-        }
-        console.log(`${play.turn} turn`)
-    }
 }
 
 const bot = {
@@ -543,6 +537,9 @@ const bot = {
         if (play.status === 'gameInactive'){
             console.log('Game not in session')
             return
+        }else if (play.players.player2 === 'human'){
+            console.log('human player2 go')
+            return
         } else {
             const lines = this.defineLineObj();
             const mostX = this.findRowsWithMostValue(lines, 'X').maxRows
@@ -654,12 +651,12 @@ const boardUI = {
     tacFontCounter: 2,
     gridData: {},
     boxes: [],
-
+    handlePlayerClick: null, // placeholder for the bound function
     init() {
         this.tac.style.top = `${this.pos2}px`;
         this.applySpringPull();
-        // Ensure the animation target exists before adding listener
         const toeElement = document.querySelector('.toe');
+        play.status = 'gameInactive'
         // if (toeElement) {
         //      toeElement.addEventListener('animationend', () => {
         //       this.startFiringSequence()
@@ -671,10 +668,49 @@ const boardUI = {
             this.createGridFromObject(gameBoard.cells, "gridContainer");
             this.setupBoxes()
         }, 2000);
-        document.getElementById('players').addEventListener('click', () => boardUI.togglePlayers());
-        play.status = 'gameInactive'
+        this.handlePlayerClick = () => this.togglePlayers(); // store it once
+        document.getElementById('players').addEventListener('click', this.handlePlayerClick);
+        document.getElementById('n-input').addEventListener("keydown", this.fireInput.bind(this));
+        document.getElementById('n-input').addEventListener("focus", () => this.clearOnFocus())
+    },
+    constructor() {
+        
+    },
+    activate() {
+        // this.button.addEventListener("click", this.boundClick);
+    },
+    deactivate() {
+        // this.button.removeEventListener("click", this.boundClick);
+        const start = document.querySelector('#start');
+        const input = document.querySelector('#n-input')
+        input.style.color = 'black';
+        input.disabled = true;
+        start.onclick = '';
+        document.getElementById('players').removeEventListener('click', this.handlePlayerClick);
     },
     isClickEnabled: true,
+    shouldClearOnFocus: false, 
+    fireInput: function(event) {
+      if (event.key === "Enter" && play.status === 'gameInactive') {
+        event.preventDefault();
+        const isFired = this.fireNewN(event.target.value);
+        if (isFired){
+            this.shouldClearOnFocus = true;
+            document.activeElement.blur();
+            this.handleStart()
+        } else {
+            this.shouldClearOnFocus = false;
+        }
+      }
+    },
+    clearOnFocus() {
+        console.log('focus')
+        if (this.shouldClearOnFocus) {
+            const input = document.getElementById('n-input');
+            input.value = "";
+            this.shouldClearOnFocus = false;
+        }
+    },
     togglePlayers() {
         console.log(this.isClickEnabled)
         const message = document.getElementById('message')
@@ -699,36 +735,49 @@ const boardUI = {
         }, 500);  // 1000 milliseconds = 1 second
     },
     handleStart() {
+        const input = document.getElementById('n-input');
         const start = document.querySelector('#start');
-        if (play.status === 'gameInactive') {
-            console.log('YAS')
-            start.classList.add('inactive')
+        if (play.status === 'gameInactive' && input.value == '') {
+            console.log('yas')
+            start.classList.add('not-ready')
         } else if (play.status === 'gameActive'){
-            start.classList.remove('inactive')
+            start.classList.add('not-ready')
+        } else if (play.status === 'gameInactive' && input.value != '') {
+            console.log('We ready')
+            start.classList.remove('not-ready')
+            start.onclick = play.start;
         }
     },
     fireNewN(text) {
-        const newDiv = document.createElement("div");
-        newDiv.classList.add("red-n");
-        newDiv.textContent = `${text}`; // Text can be 'n' or a number
-
-        // Ensure dropMain exists
-        if (!this.dropMain) {
-            console.error(".drop-main container not found.");
-            return;
+        if (text <= 20 && text > 0){
+            const newDiv = document.createElement("div");
+            newDiv.classList.add("red-n");
+            newDiv.textContent = `${text}`; // Text can be 'n' or a number
+            // Ensure dropMain exists
+            if (!this.dropMain) {
+                console.error(".drop-main container not found.");
+                return;
+            }
+            this.dropMain.appendChild(newDiv);
+    
+    
+            const n = {
+                el: newDiv,
+                pos: -200,
+                stuck: false
+            };
+    
+            newDiv.style.top = `${n.pos}px`;
+            this.nArr.push(n);
+            this.animateN(n);
+            return true
+        } else if (text > 20) {
+            console.log('just keep it under 20, pls')
+            return false
+        } else if (text < 1){
+            console.log("it's not TIC TAC is it?")
+            return false
         }
-        this.dropMain.appendChild(newDiv);
-
-
-        const n = {
-            el: newDiv,
-            pos: -200,
-            stuck: false
-        };
-
-        newDiv.style.top = `${n.pos}px`;
-        this.nArr.push(n);
-        this.animateN(n);
     },
     removeExcessN() {
         const maxStuckVisible = 1; // Max STUCK elements allowed
@@ -1132,26 +1181,4 @@ const boardUI = {
 });
 
 console.log('HELLOOOO?')
-
-//     let isClickEnabled =  true;
-//     function togglePlayers() {
-//         console.log({isClickEnabled})
-//         if (!isClickEnabled) return;  // Prevent further clicks while processing
-
-//         isClickEnabled = false;  // Disable clicking temporarily
-//         const player1 = document.getElementById('player1');
-//         const player2 = document.getElementById('player2');
-        
-//         if (player1.textContent === 'Player1') {
-//         player1.textContent = 'HuMan';
-//         player2.textContent = 'bOt';
-//         } else {
-//         player1.textContent = 'Player1';
-//         player2.textContent = 'Player2';
-//         }
-//         setTimeout(() => {
-//             isClickEnabled = true;
-//         }, 500);  // 1000 milliseconds = 1 second
-//   }
-
   
