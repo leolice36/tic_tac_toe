@@ -278,7 +278,7 @@ const play = {
     gameBoard.reset()
     play.status = 'gameActive';
     boardUI.deactivate();
-
+    play.turn = 'player1'
     console.log('GAME START')
     console.table(gameBoard.cells)
   },
@@ -554,7 +554,7 @@ const bot = {
                 gameBoard.cells[`row${centerNumber + 1}`][`col${centerNumber + 1}`],
                 gameBoard.cells[`row${centerNumber }`][`col${centerNumber + 1}`],
             ]
-            const numberOfMarkInCenterFour = centerFour.filter(val => val === 'O').length;
+            let numberOfMarkInCenterFour = centerFour.filter(val => val === 'O').length;
             const cornerFour = [
                 gameBoard.cells[`row${1}`][`col${1}`],
                 gameBoard.cells[`row${dimension}`][`1}`],
@@ -570,6 +570,8 @@ const bot = {
             const mostOAvailable = bot.getOverlap(positionsInLinesO,availablePositions);
             const win = mostOAvailable.length
             let chosenMove
+            const target = numberOfMarkInCenterFour + 1;
+
             if (play.turn !== 'player2'){
                 console.log('not your turn')
                 return
@@ -580,15 +582,26 @@ const bot = {
                     chosenBox.textContent = 'O';
                     play.move(`r${centerNumber}c${centerNumber}`)
                     
-            } else if (((dimension % 2) === 0) && (numberOfMarkInCenterFour < 2)  && (centerFour.includes(0))){
-                while (current !== numberOfMarkInCenterFour +1) {
-                    const randomRow = Math.random() < 0.5 ? (dimension / 2) : (dimension / 2 + 1);
-                    const randomCol = Math.random() < 0.5 ? (dimension / 2) : (dimension / 2 + 1);
-                    chosenMove = `r${randomRow}c${randomCol}`
-                    const chosenBox = document.querySelector(`#${chosenMove}`)
-                    chosenBox.textContent = 'O';
-                    play.move(`r${randomRow}c${randomCol}`)
-                }
+            // } else if (((dimension % 2) === 0) && (numberOfMarkInCenterFour < 2)  && (centerFour.includes(0))){
+            //     console.log({numberOfMarkInCenterFour})
+            //     const maxTries = 10;
+            //     let tries = 0;
+            //     while (numberOfMarkInCenterFour < target && tries < maxTries) {
+            //         console.log('loop')
+            //     const mid = Math.floor(dimension / 2);
+            //     const randomRow = Math.random() < 0.5 ? mid : mid + 1;
+            //     const randomCol = Math.random() < 0.5 ? mid : mid + 1;
+            //     const chosenMove = `r${randomRow}c${randomCol}`;
+            //     const chosenBox = document.querySelector(`#${chosenMove}`);
+
+            //     if (chosenBox.textContent === '') { // only mark if empty
+            //         chosenBox.textContent = 'O';
+            //         play.move(chosenMove);
+            //         numberOfMarkInCenterFour = centerFour.filter(val => val === 'O').length;
+            //         console.log({numberOfMarkInCenterFour}, {target}, centerFour.filter(val => val === 'O').length)
+            //     }
+            //     tries++
+            //     }
             } else if (Object.keys(mostX).length === 1 && bot.getOverlap(positionsInLinesX,availablePositions).length > 0) {
                 // console.log('mostX = 1')
                 const availableMoves = bot.getOverlap(positionsInLinesX,availablePositions);
@@ -677,12 +690,21 @@ const boardUI = {
         
     },
     activate() {
-        // this.button.addEventListener("click", this.boundClick);
-    },
-    deactivate() {
-        // this.button.removeEventListener("click", this.boundClick);
+        play.status = 'gameInactive'
         const start = document.querySelector('#start');
         const input = document.querySelector('#n-input')
+        const message =  document.querySelector('#message');
+        input.style.color = '';
+        input.disabled = false;
+        document.getElementById('players').addEventListener('click', this.handlePlayerClick);
+    },
+    deactivate() {
+        const start = document.querySelector('#start');
+        const input = document.querySelector('#n-input');
+        const message =  document.querySelector('#message');
+        message.textContent = "Let's go"
+        message.color = ''
+        message.fontWeight = ''
         input.style.color = 'black';
         input.disabled = true;
         start.onclick = '';
@@ -737,13 +759,16 @@ const boardUI = {
     handleStart() {
         const input = document.getElementById('n-input');
         const start = document.querySelector('#start');
+        const message =  document.querySelector('#message');
         if (play.status === 'gameInactive' && input.value == '') {
             console.log('yas')
             start.classList.add('not-ready')
         } else if (play.status === 'gameActive'){
             start.classList.add('not-ready')
         } else if (play.status === 'gameInactive' && input.value != '') {
-            console.log('We ready')
+            message.textContent = 'We ready'
+            message.color = '#E10808'
+            message.fontWeight = '300'
             start.classList.remove('not-ready')
             start.onclick = play.start;
         }
@@ -751,6 +776,7 @@ const boardUI = {
     fireNewN(text) {
         if (text <= 20 && text > 0){
             const newDiv = document.createElement("div");
+            const message = document.querySelector('#message')
             newDiv.classList.add("red-n");
             newDiv.textContent = `${text}`; // Text can be 'n' or a number
             // Ensure dropMain exists
@@ -772,9 +798,11 @@ const boardUI = {
             this.animateN(n);
             return true
         } else if (text > 20) {
+            message.textContent = 'just keep it under 20, pls'
             console.log('just keep it under 20, pls')
             return false
         } else if (text < 1){
+            message.textContent = "it's not TIC TAC is it?"
             console.log("it's not TIC TAC is it?")
             return false
         }
